@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: runops-postgres
+
+    environment:
+      POSTGRES_DB: runops
+      POSTGRES_USER: runops
+      POSTGRES_PASSWORD: runops
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - runops-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  runops-postgres-data:
