@@ -1,0 +1,85 @@
+<h2>Registrar entrenamiento</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <fieldset [disabled]="saving()">
+    <legend>Datos del entrenamiento</legend>
+
+    <div>
+      <label for="date">Fecha</label>
+      <input
+        id="date"
+        type="date"
+        formControlName="date"
+        required
+      />
+
+      @if (form.controls.date.touched && form.controls.date.invalid) {
+        <p>La fecha es obligatoria.</p>
+      }
+    </div>
+
+    <div>
+      <label for="distanceKm">Distancia (km)</label>
+      <input
+        id="distanceKm"
+        type="number"
+        formControlName="distanceKm"
+        min="0.01"
+        step="any"
+        required
+      />
+
+      @if (
+        form.controls.distanceKm.touched &&
+        form.controls.distanceKm.invalid
+      ) {
+        <p>Introduce una distancia de al menos 0,01 km.</p>
+      }
+    </div>
+
+    <div>
+      <label for="durationMinutes">Duración (minutos)</label>
+      <input
+        id="durationMinutes"
+        type="number"
+        formControlName="durationMinutes"
+        min="1"
+        step="any"
+        required
+      />
+
+      @if (
+        form.controls.durationMinutes.touched &&
+        form.controls.durationMinutes.invalid
+      ) {
+        <p>Introduce una duración de al menos 1 minuto.</p>
+      }
+    </div>
+
+    <div>
+      <label for="notes">Notas (opcional)</label>
+      <textarea
+        id="notes"
+        formControlName="notes"
+        maxlength="1000"
+        rows="3"
+      ></textarea>
+
+      @if (form.controls.notes.touched && form.controls.notes.invalid) {
+        <p>Las notas no pueden superar los 1000 caracteres.</p>
+      }
+    </div>
+
+    <button type="submit" [disabled]="saving()">
+      {{ saving() ? 'Guardando...' : 'Guardar entrenamiento' }}
+    </button>
+  </fieldset>
+</form>
+
+@if (errorMessage()) {
+  <p role="alert">{{ errorMessage() }}</p>
+}
+
+@if (successMessage()) {
+  <p role="status">{{ successMessage() }}</p>
+}

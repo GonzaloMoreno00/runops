@@ -1,5 +1,9 @@
 <h1>RunOps</h1>
 
+<app-workout-form
+  (workoutCreated)="loadWorkouts()"
+/>
+
 <h2>Entrenamientos</h2>
 
 @if (loading()) {
