@@ -8,6 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "workouts")
@@ -17,15 +19,21 @@ public class Workout {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Date is required")
     @Column(nullable = false)
     private LocalDate date;
 
+    @NotNull(message = "Distance is required")
+    @Positive(message = "Distance must be greater than 0")
     @Column(nullable = false)
     private Double distanceKm;
 
+    @NotNull(message = "Duration is required")
+    @Positive(message = "Duration must be greater than 0")
     @Column(nullable = false)
     private Integer durationSeconds;
 
+    @Positive(message = "Average pace must be greater than 0")
     private Integer averagePaceSecondsPerKm;
 
     @Column(length = 1000)

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.runops.backend.workout.model.Workout;
 import com.runops.backend.workout.service.WorkoutService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/workouts")
 public class WorkoutController {
@@ -24,7 +26,7 @@ public class WorkoutController {
     }
 
     @PostMapping
-    public ResponseEntity<Workout> createWorkout(@RequestBody Workout workout) {
+    public ResponseEntity<Workout> createWorkout(@Valid @RequestBody Workout workout) {
         Workout savedWorkout = workoutService.createWorkout(workout);
         return ResponseEntity.ok(savedWorkout);
     }
