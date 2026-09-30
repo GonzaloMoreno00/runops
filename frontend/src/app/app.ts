@@ -3,10 +3,11 @@ import { Component, OnInit, signal } from '@angular/core';
 import { Workout } from './workout/model/workout';
 import { WorkoutService } from './workout/service/WorkoutService';
 import { WorkoutForm } from './workout/components/workout-form/workout-form';
+import { WorkoutHistory } from './workout/components/workout-history/workout-history';
 
 @Component({
   selector: 'app-root',
-  imports: [WorkoutForm],
+  imports: [WorkoutForm, WorkoutHistory],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

@@ -4,30 +4,8 @@
   (workoutCreated)="loadWorkouts()"
 />
 
-<h2>Entrenamientos</h2>
-
-@if (loading()) {
-  <p>Cargando entrenamientos...</p>
-} @else if (errorMessage()) {
-  <p role="alert">{{ errorMessage() }}</p>
-} @else {
-  <ul>
-    @for (workout of workouts(); track workout.id) {
-      <li>
-        <p>Fecha: {{ workout.date }}</p>
-        <p>Distancia: {{ workout.distanceKm }} km</p>
-        <p>Duración: {{ workout.durationSeconds }} segundos</p>
-
-        @if (workout.averagePaceSecondsPerKm != null) {
-          <p>Ritmo medio: {{ workout.averagePaceSecondsPerKm }} segundos/km</p>
-        }
-
-        @if (workout.notes) {
-          <p>Notas: {{ workout.notes }}</p>
-        }
-      </li>
-    } @empty {
-      <li>Todavía no hay entrenamientos registrados.</li>
-    }
-  </ul>
-}
+<app-workout-history
+  [workouts]="workouts()"
+  [loading]="loading()"
+  [errorMessage]="errorMessage()"
+/>
