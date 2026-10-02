@@ -2,6 +2,7 @@ package com.runops.backend.workout.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +29,14 @@ public class WorkoutController {
     }
 
     @PostMapping
-    public ResponseEntity<Workout> createWorkout(@Valid @RequestBody Workout workout) {
-        Workout savedWorkout = workoutService.createWorkout(workout);
-        return ResponseEntity.ok(savedWorkout);
+    public ResponseEntity<Workout> createWorkout(
+            @Valid @RequestBody Workout workout) {
+
+        Workout createdWorkout = workoutService.createWorkout(workout);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(createdWorkout);
     }
 
     @GetMapping

@@ -18,6 +18,12 @@ public class WorkoutService {
     }
 
     public Workout createWorkout(Workout workout) {
+        int averagePace = (int) Math.round(
+            workout.getDurationSeconds() / workout.getDistanceKm()
+        );
+
+        workout.setAveragePaceSecondsPerKm(averagePace);
+
         return workoutRepository.save(workout);
     }
 
