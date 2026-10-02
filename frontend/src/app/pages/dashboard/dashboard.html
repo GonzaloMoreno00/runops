@@ -1,0 +1,12 @@
+
+<h1>Mis entrenamientos</h1>
+
+<app-workout-form
+  (workoutCreated)="loadWorkouts()"
+/>
+
+<app-workout-history
+  [workouts]="workouts()"
+  [loading]="loading()"
+  [errorMessage]="errorMessage()"
+/>
