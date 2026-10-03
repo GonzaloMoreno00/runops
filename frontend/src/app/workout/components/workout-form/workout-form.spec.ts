@@ -26,6 +26,7 @@ describe('WorkoutForm', () => {
     date: '2026-09-27',
     distanceKm: 5,
     durationSeconds: 1500,
+    averagePaceSecondsPerKm: 300,
     notes: 'Rodaje suave'
   };
 

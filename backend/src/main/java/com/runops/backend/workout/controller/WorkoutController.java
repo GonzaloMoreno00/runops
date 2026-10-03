@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.runops.backend.workout.model.Workout;
+import com.runops.backend.workout.dto.CreateWorkoutRequest;
+import com.runops.backend.workout.dto.WorkoutResponse;
 import com.runops.backend.workout.service.WorkoutService;
 
 import jakarta.validation.Valid;
@@ -29,23 +30,26 @@ public class WorkoutController {
     }
 
     @PostMapping
-    public ResponseEntity<Workout> createWorkout(
-            @Valid @RequestBody Workout workout) {
+    public ResponseEntity<WorkoutResponse> createWorkout(
+            @Valid @RequestBody CreateWorkoutRequest request) {
 
-        Workout createdWorkout = workoutService.createWorkout(workout);
+        WorkoutResponse response = workoutService.createWorkout(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(createdWorkout);
+                .body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<Workout>> getAllWorkouts() {
+    public ResponseEntity<List<WorkoutResponse>> getAllWorkouts() {
+
         return ResponseEntity.ok(workoutService.getAllWorkouts());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Workout> getWorkoutById(@PathVariable Long id) {
+    public ResponseEntity<WorkoutResponse> getWorkoutById(
+            @PathVariable Long id) {
+
         return workoutService.getWorkoutById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
