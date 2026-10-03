@@ -1,13 +1,19 @@
 package com.runops.backend.workout.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
+import com.runops.backend.workout.dto.CreateWorkoutRequest;
+import com.runops.backend.workout.dto.WorkoutResponse;
 import com.runops.backend.workout.model.Workout;
 import com.runops.backend.workout.repository.WorkoutRepository;
 
@@ -15,24 +21,35 @@ class WorkoutServiceTest {
 
     @Test
     void shouldCalculateAveragePaceBeforeSaving() {
-        WorkoutRepository mockRepository = mock(WorkoutRepository.class);
 
+        // Arrange
+        WorkoutRepository mockRepository = mock(WorkoutRepository.class);
         WorkoutService service = new WorkoutService(mockRepository);
 
-        Workout workout = new Workout(
+        CreateWorkoutRequest request = new CreateWorkoutRequest(
                 LocalDate.of(2026, 9, 27),
                 5.0,
                 1500,
-                null,
-                "Rodaje suave");
+                "Rodaje suave"
+        );
 
-        when(mockRepository.save(workout)).thenReturn(workout);
+        when(mockRepository.save(any(Workout.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Workout result = service.createWorkout(workout);
+        // Act
+        WorkoutResponse result = service.createWorkout(request);
 
-        assertEquals(
-                300,
-                result.getAveragePaceSecondsPerKm());
+        // Assert
+        assertEquals(300, result.averagePaceSecondsPerKm());
+
+        ArgumentCaptor<Workout> captor =
+                ArgumentCaptor.forClass(Workout.class);
+
+        verify(mockRepository).save(captor.capture());
+
+        Workout savedWorkout = captor.getValue();
+
+        assertEquals(300, savedWorkout.getAveragePaceSecondsPerKm());
     }
 
     @Test
@@ -42,42 +59,54 @@ class WorkoutServiceTest {
         WorkoutRepository mockRepository = mock(WorkoutRepository.class);
         WorkoutService service = new WorkoutService(mockRepository);
 
-        Workout workout = new Workout(
+        CreateWorkoutRequest request = new CreateWorkoutRequest(
                 LocalDate.of(2026, 9, 30),
                 5.0,
                 1503,
-                null,
-                "Rodaje de prueba");
+                "Rodaje de prueba"
+        );
 
-        when(mockRepository.save(workout)).thenReturn(workout);
+        when(mockRepository.save(any(Workout.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        Workout result = service.createWorkout(workout);
+        WorkoutResponse result = service.createWorkout(request);
 
         // Assert
-        assertEquals(301, result.getAveragePaceSecondsPerKm());
+        assertEquals(301, result.averagePaceSecondsPerKm());
     }
 
     @Test
-    void shouldOverrideClientProvidedPace() {
+    void shouldCreateWorkoutWithoutAssignedId() {
 
         // Arrange
         WorkoutRepository mockRepository = mock(WorkoutRepository.class);
         WorkoutService service = new WorkoutService(mockRepository);
 
-        Workout workout = new Workout(
+        CreateWorkoutRequest request = new CreateWorkoutRequest(
                 LocalDate.of(2026, 9, 30),
                 5.0,
                 1500,
-                999,
-                "Rodaje de prueba");
+                "Rodaje de prueba"
+        );
 
-        when(mockRepository.save(workout)).thenReturn(workout);
+        when(mockRepository.save(any(Workout.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        Workout result = service.createWorkout(workout);
+        service.createWorkout(request);
 
         // Assert
-        assertEquals(300, result.getAveragePaceSecondsPerKm());
+        ArgumentCaptor<Workout> captor =
+                ArgumentCaptor.forClass(Workout.class);
+
+        verify(mockRepository).save(captor.capture());
+
+        Workout savedWorkout = captor.getValue();
+
+        assertNull(savedWorkout.getId());
+        assertEquals(5.0, savedWorkout.getDistanceKm());
+        assertEquals(1500, savedWorkout.getDurationSeconds());
+        assertEquals(300, savedWorkout.getAveragePaceSecondsPerKm());
     }
 }

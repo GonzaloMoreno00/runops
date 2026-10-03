@@ -6,8 +6,8 @@ import {
   Validators
 } from '@angular/forms';
 
-import { Workout } from '../../model/workout';
 import { WorkoutService } from '../../service/WorkoutService';
+import { CreateWorkoutRequest } from '../../model/create-workout-request';
 
 @Component({
   selector: 'app-workout-form',
@@ -45,7 +45,7 @@ export class WorkoutForm {
     })
   });
 
-  constructor(private workoutService: WorkoutService) {}
+  constructor(private workoutService: WorkoutService) { }
 
   submit(): void {
     if (this.saving()) {
@@ -66,11 +66,11 @@ export class WorkoutForm {
       return;
     }
 
-    const workout: Workout = {
+    const workout: CreateWorkoutRequest = {
       date: values.date,
-      distanceKm: values.distanceKm,
-      durationSeconds: Math.round(values.durationMinutes * 60),
-      notes: values.notes.trim()
+      distanceKm: Number(values.distanceKm),
+      durationSeconds: Math.round(Number(values.durationMinutes) * 60),
+      notes: values.notes
     };
 
     this.saving.set(true);

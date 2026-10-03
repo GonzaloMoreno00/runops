@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { Workout } from '../model/workout';
+import { CreateWorkoutRequest } from '../model/create-workout-request';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +23,7 @@ export class WorkoutService {
     return this.http.get<Workout>(`${this.apiUrl}/${id}`);
   }
 
-  createWorkout(workout: Workout): Observable<Workout> {
-    return this.http.post<Workout>(this.apiUrl, workout);
+  createWorkout(request: CreateWorkoutRequest): Observable<Workout> {
+    return this.http.post<Workout>(this.apiUrl, request);
   }
 }

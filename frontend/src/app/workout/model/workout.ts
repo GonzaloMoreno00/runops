@@ -1,8 +1,8 @@
 export interface Workout {
-  id?: number;
+  id: number;
   date: string;
   distanceKm: number;
   durationSeconds: number;
-  averagePaceSecondsPerKm?: number;
-  notes?: string;
+  averagePaceSecondsPerKm: number | null;
+  notes: string | null;
 }
