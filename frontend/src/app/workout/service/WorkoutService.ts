@@ -1,9 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 
 import { Workout } from '../model/workout';
 import { CreateWorkoutRequest } from '../model/create-workout-request';
+
+interface CsrfResponse {
+  headerName: string;
+  token: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -11,19 +16,42 @@ import { CreateWorkoutRequest } from '../model/create-workout-request';
 export class WorkoutService {
 
   private readonly apiUrl = 'http://localhost:8080/api/workouts';
+  private readonly authUrl = 'http://localhost:8080/api/auth';
 
   constructor(private http: HttpClient) {
   }
 
   getAllWorkouts(): Observable<Workout[]> {
-    return this.http.get<Workout[]>(this.apiUrl);
+    return this.http.get<Workout[]>(
+      this.apiUrl,
+      { withCredentials: true }
+    );
   }
 
   getWorkoutById(id: number): Observable<Workout> {
-    return this.http.get<Workout>(`${this.apiUrl}/${id}`);
+    return this.http.get<Workout>(
+      `${this.apiUrl}/${id}`,
+      { withCredentials: true }
+    );
   }
 
   createWorkout(request: CreateWorkoutRequest): Observable<Workout> {
-    return this.http.post<Workout>(this.apiUrl, request);
+    return this.http.get<CsrfResponse>(
+      `${this.authUrl}/csrf`,
+      { withCredentials: true }
+    ).pipe(
+      switchMap(csrf => {
+        return this.http.post<Workout>(
+          this.apiUrl,
+          request,
+          {
+            withCredentials: true,
+            headers: {
+              [csrf.headerName]: csrf.token
+            }
+          }
+        );
+      })
+    );
   }
 }
