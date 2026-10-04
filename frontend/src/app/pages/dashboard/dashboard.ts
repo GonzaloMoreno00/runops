@@ -1,6 +1,7 @@
-
 import { Component, OnInit, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 
+import { AuthService } from '../../auth/service/auth.service';
 import { Workout } from '../../workout/model/workout';
 import { WorkoutService } from '../../workout/service/WorkoutService';
 import { WorkoutForm } from '../../workout/components/workout-form/workout-form';
@@ -8,16 +9,24 @@ import { WorkoutHistory } from '../../workout/components/workout-history/workout
 
 @Component({
   selector: 'app-dashboard',
-  imports: [WorkoutForm, WorkoutHistory],
+  imports: [WorkoutForm, WorkoutHistory, RouterLink],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
+
   workouts = signal<Workout[]>([]);
   loading = signal(true);
   errorMessage = signal('');
 
-  constructor(private workoutService: WorkoutService) {}
+  loggingOut = signal(false);
+  logoutError = signal('');
+
+  constructor(
+    private workoutService: WorkoutService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadWorkouts();
@@ -37,6 +46,29 @@ export class Dashboard implements OnInit {
           'No se pudieron cargar los entrenamientos. Inténtalo de nuevo más tarde.'
         );
         this.loading.set(false);
+      }
+    });
+  }
+
+  logout(): void {
+
+    if (this.loggingOut()) {
+      return;
+    }
+
+    this.loggingOut.set(true);
+    this.logoutError.set('');
+
+    this.authService.logout().subscribe({
+      next: () => {
+        this.loggingOut.set(false);
+        this.router.navigate(['/']);
+      },
+      error: () => {
+        this.loggingOut.set(false);
+        this.logoutError.set(
+          'No se pudo cerrar la sesión. Inténtalo de nuevo.'
+        );
       }
     });
   }

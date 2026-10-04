@@ -1,0 +1,86 @@
+<div class="login-page">
+
+  <div class="login-card">
+
+    <a class="logo" routerLink="/">RunOps.</a>
+
+    <h1>Iniciar sesión</h1>
+
+    <p class="subtitle">
+      Accede a tu cuenta y continúa registrando tus entrenamientos.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <!-- Email -->
+
+      <div class="form-group">
+        <label for="email">Correo electrónico</label>
+
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="tu@email.com"
+          autocomplete="email"
+        />
+
+        @if (form.controls.email.invalid && form.controls.email.touched) {
+          <small class="field-error">
+            Introduce un correo electrónico válido.
+          </small>
+        }
+      </div>
+
+      <!-- Password -->
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="Tu contraseña"
+          autocomplete="current-password"
+        />
+
+        @if (form.controls.password.invalid && form.controls.password.touched) {
+          <small class="field-error">
+            Introduce tu contraseña.
+          </small>
+        }
+      </div>
+
+      <!-- Authentication errors -->
+
+      @if (errorMessage()) {
+        <p class="error-message" role="alert">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      <!-- Submit -->
+
+      <button
+        class="submit-button"
+        type="submit"
+        [disabled]="loading()"
+      >
+        {{ loading() ? 'Iniciando sesión...' : 'Iniciar sesión' }}
+      </button>
+
+    </form>
+
+    <p class="register-text">
+      ¿Todavía no tienes cuenta?
+      <a routerLink="/register">Regístrate aquí</a>
+    </p>
+
+    <a class="back-link" routerLink="/">
+      ← Volver al inicio
+    </a>
+
+  </div>
+
+</div>

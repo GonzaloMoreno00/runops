@@ -1,12 +1,38 @@
+<header class="dashboard-header">
 
-<h1>Mis entrenamientos</h1>
+  <a class="dashboard-logo" routerLink="/">
+    RunOps.
+  </a>
 
-<app-workout-form
-  (workoutCreated)="loadWorkouts()"
-/>
+  <button
+    class="logout-button"
+    type="button"
+    (click)="logout()"
+    [disabled]="loggingOut()"
+  >
+    {{ loggingOut() ? 'Cerrando sesión...' : 'Cerrar sesión' }}
+  </button>
 
-<app-workout-history
-  [workouts]="workouts()"
-  [loading]="loading()"
-  [errorMessage]="errorMessage()"
-/>
+</header>
+
+<main class="dashboard-content">
+
+  <h1>Mis entrenamientos</h1>
+
+  @if (logoutError()) {
+    <p class="logout-error" role="alert">
+      {{ logoutError() }}
+    </p>
+  }
+
+  <app-workout-form
+    (workoutCreated)="loadWorkouts()"
+  />
+
+  <app-workout-history
+    [workouts]="workouts()"
+    [loading]="loading()"
+    [errorMessage]="errorMessage()"
+  />
+
+</main>
