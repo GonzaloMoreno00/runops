@@ -2,11 +2,16 @@ package com.runops.backend.workout.model;
 
 import java.time.LocalDate;
 
+import com.runops.backend.user.model.User;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -18,6 +23,10 @@ public class Workout {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @NotNull(message = "Date is required")
     @Column(nullable = false)
@@ -43,12 +52,14 @@ public class Workout {
     }
 
     public Workout(
+            User user,
             LocalDate date,
             Double distanceKm,
             Integer durationSeconds,
             Integer averagePaceSecondsPerKm,
             String notes
     ) {
+        this.user = user;
         this.date = date;
         this.distanceKm = distanceKm;
         this.durationSeconds = durationSeconds;
@@ -62,6 +73,14 @@ public class Workout {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public LocalDate getDate() {

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -29,12 +28,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            UserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder) {
+    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService,PasswordEncoder passwordEncoder) {
 
-        DaoAuthenticationProvider provider =
-                new DaoAuthenticationProvider(userDetailsService);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
 
         provider.setPasswordEncoder(passwordEncoder);
 
@@ -51,7 +47,7 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
 
             // Keep CSRF enabled for session-based authentication.
-            // Existing registration remains compatible with its previous API.
+            // Registration remains public and does not require a CSRF token.
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers("/api/auth/register")
             )
@@ -70,18 +66,16 @@ public class SecurityConfig {
                     "/error"
                 ).permitAll()
 
-                // Workouts remain public temporarily.
-                // Ownership restrictions belong to the next issue.
+                // Workout endpoints require an authenticated user.
                 .requestMatchers(
                     "/api/workouts",
                     "/api/workouts/**"
-                ).permitAll()
+                ).authenticated()
 
-                // All remaining endpoints require authentication.
+                // All remaining endpoints also require authentication.
                 .anyRequest().authenticated()
             )
 
-            // We use our own JSON login instead of Spring's HTML form.
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
 
@@ -93,7 +87,6 @@ public class SecurityConfig {
                 )
             )
 
-            // Spring Security handles session invalidation and cleanup.
             .logout(logout -> logout
                 .logoutUrl("/api/auth/logout")
                 .invalidateHttpSession(true)
@@ -113,23 +106,16 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(
-            List.of("http://localhost:4200")
-        );
+        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
 
-        configuration.setAllowedMethods(
-            List.of("GET", "POST", "OPTIONS")
-        );
+        configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
 
-        configuration.setAllowedHeaders(
-            List.of("Content-Type", "X-CSRF-TOKEN")
-        );
+        configuration.setAllowedHeaders(List.of("Content-Type", "X-CSRF-TOKEN"));
 
         // Allow the browser to send the session cookie.
         configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         source.registerCorsConfiguration("/**", configuration);
 

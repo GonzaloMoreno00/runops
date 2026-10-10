@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.runops.backend.user.model.User;
 import com.runops.backend.workout.dto.CreateWorkoutRequest;
 import com.runops.backend.workout.dto.WorkoutResponse;
 import com.runops.backend.workout.model.Workout;
@@ -21,21 +22,18 @@ public class WorkoutService {
         this.workoutRepository = workoutRepository;
     }
 
-    public WorkoutResponse createWorkout(CreateWorkoutRequest request) {
+    public WorkoutResponse createWorkout(CreateWorkoutRequest request, User user) {
 
         // Calculate average pace from distance and duration.
-        double calculatedPace =
-            request.durationSeconds() / request.distanceKm();
+        double calculatedPace = request.durationSeconds() / request.distanceKm();
 
         // Check that the calculated pace is valid.
         if (!Double.isFinite(calculatedPace)
                 || calculatedPace < 0.5
                 || calculatedPace >= Integer.MAX_VALUE + 0.5) {
 
-            throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Invalid workout distance or duration"
-            );
+
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid workout distance or duration");
         }
 
         int averagePace = (int) Math.round(calculatedPace);
@@ -43,29 +41,31 @@ public class WorkoutService {
         // Build a new entity from the request data.
         Workout workout = new Workout();
 
+        workout.setUser(user);
         workout.setDate(request.date());
         workout.setDistanceKm(request.distanceKm());
         workout.setDurationSeconds(request.durationSeconds());
         workout.setAveragePaceSecondsPerKm(averagePace);
         workout.setNotes(request.notes());
 
-        // Save the new workout in PostgreSQL.
         Workout savedWorkout = workoutRepository.save(workout);
 
         return toResponse(savedWorkout);
     }
 
-    public List<WorkoutResponse> getAllWorkouts() {
+    public List<WorkoutResponse> getAllWorkouts(User user) {
 
-        return workoutRepository.findAllByOrderByDateDescIdDesc()
+        return workoutRepository
+            .findAllByUserIdOrderByDateDescIdDesc(user.getId())
             .stream()
             .map(this::toResponse)
             .toList();
     }
 
-    public Optional<WorkoutResponse> getWorkoutById(Long id) {
+    public Optional<WorkoutResponse> getWorkoutById(Long id,User user) {
 
-        return workoutRepository.findById(id)
+        return workoutRepository
+            .findByIdAndUserId(id, user.getId())
             .map(this::toResponse);
     }
 
