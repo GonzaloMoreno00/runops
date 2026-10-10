@@ -3,6 +3,7 @@ package com.runops.backend.workout.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.runops.backend.user.model.User;
 import com.runops.backend.workout.dto.CreateWorkoutRequest;
@@ -199,5 +201,48 @@ class WorkoutServiceTest {
                 workout.setNotes("Test workout");
 
                 return workout;
+        }
+
+        @Test
+        void shouldDeleteWorkoutWhenItBelongsToUser() {
+
+                WorkoutRepository mockRepository = mock(WorkoutRepository.class);
+                WorkoutService service = new WorkoutService(mockRepository);
+
+                User user = createTestUser();
+
+                Workout workout = createWorkout(user, 5.0, 1500);
+
+                when(mockRepository.findByIdAndUserId(1L, user.getId()))
+                                .thenReturn(Optional.of(workout));
+
+                service.deleteWorkout(1L, user);
+
+                verify(mockRepository)
+                                .findByIdAndUserId(1L, user.getId());
+
+                verify(mockRepository)
+                                .delete(workout);
+        }
+
+        @Test
+        void shouldThrowNotFoundWhenDeletingWorkoutThatDoesNotBelongToUser() {
+
+                WorkoutRepository mockRepository = mock(WorkoutRepository.class);
+                WorkoutService service = new WorkoutService(mockRepository);
+
+                User user = createTestUser();
+
+                when(mockRepository.findByIdAndUserId(99L, user.getId()))
+                                .thenReturn(Optional.empty());
+
+                ResponseStatusException exception = assertThrows(
+                                ResponseStatusException.class,
+                                () -> service.deleteWorkout(99L, user));
+
+                assertEquals(404, exception.getStatusCode().value());
+
+                verify(mockRepository)
+                                .findByIdAndUserId(99L, user.getId());
         }
 }

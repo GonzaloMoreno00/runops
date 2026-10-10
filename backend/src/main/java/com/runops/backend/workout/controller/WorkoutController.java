@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,7 +37,8 @@ public class WorkoutController {
     }
 
     @PostMapping
-    public ResponseEntity<WorkoutResponse> createWorkout(@Valid @RequestBody CreateWorkoutRequest request,Authentication authentication) {
+    public ResponseEntity<WorkoutResponse> createWorkout(@Valid @RequestBody CreateWorkoutRequest request,
+            Authentication authentication) {
 
         User user = getAuthenticatedUser(authentication);
 
@@ -56,13 +58,23 @@ public class WorkoutController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<WorkoutResponse> getWorkoutById(@PathVariable Long id,Authentication authentication) {
+    public ResponseEntity<WorkoutResponse> getWorkoutById(@PathVariable Long id, Authentication authentication) {
 
         User user = getAuthenticatedUser(authentication);
 
         return workoutService.getWorkoutById(id, user)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteWorkout(@PathVariable Long id, Authentication authentication) {
+
+        User user = getAuthenticatedUser(authentication);
+
+        workoutService.deleteWorkout(id, user);
+
+        return ResponseEntity.noContent().build();
     }
 
     private User getAuthenticatedUser(Authentication authentication) {

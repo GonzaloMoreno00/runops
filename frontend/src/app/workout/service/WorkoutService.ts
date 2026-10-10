@@ -54,4 +54,23 @@ export class WorkoutService {
       })
     );
   }
+
+  deleteWorkout(id: number): Observable<void> {
+    return this.http.get<CsrfResponse>(
+      `${this.authUrl}/csrf`,
+      { withCredentials: true }
+    ).pipe(
+      switchMap(csrf => {
+        return this.http.delete<void>(
+          `${this.apiUrl}/${id}`,
+          {
+            withCredentials: true,
+            headers: {
+              [csrf.headerName]: csrf.token
+            }
+          }
+        );
+      })
+    );
+  }
 }
