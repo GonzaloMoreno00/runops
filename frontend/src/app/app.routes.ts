@@ -4,6 +4,7 @@ import { Home } from './pages/home/home';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { Login } from './auth/pages/login/login';
 import { Register } from './auth/pages/register/register';
+import { authGuard } from './auth/guard/auth.guard';
 
 export const routes: Routes = [
   {
@@ -12,7 +13,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
-    component: Dashboard
+    component: Dashboard,
+    canActivate: [authGuard]
   },
   {
     path: 'login',
