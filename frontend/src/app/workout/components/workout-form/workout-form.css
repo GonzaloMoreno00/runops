@@ -1,0 +1,148 @@
+:host {
+  display: block;
+  margin-bottom: 48px;
+}
+
+h2 {
+  margin: 0 0 20px;
+  color: #ffffff;
+  font-size: 1.5rem;
+}
+
+form {
+  margin: 0;
+}
+
+fieldset {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin: 0;
+  padding: 28px;
+  border: 1px solid #333333;
+  border-radius: 14px;
+  background-color: #1b1b1b;
+}
+
+fieldset:disabled {
+  opacity: 0.7;
+}
+
+legend {
+  padding: 0 10px;
+  color: #ff8c42;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+fieldset > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+fieldset > div:last-of-type {
+  grid-column: 1 / -1;
+}
+
+label {
+  color: #e8e8e8;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+input,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 13px;
+  border: 1px solid #444444;
+  border-radius: 8px;
+  background-color: #262626;
+  color: #ffffff;
+  font: inherit;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #ff8c42;
+  box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.12);
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+fieldset p {
+  margin: 0;
+  color: #ff9b87;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+button[type="submit"] {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding: 13px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: #ff8c42;
+  color: #111111;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    transform 0.2s;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background-color: #ffa05c;
+  transform: translateY(-1px);
+}
+
+button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+p[role="alert"],
+p[role="status"] {
+  margin: 16px 0 0;
+  padding: 13px 15px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+p[role="alert"] {
+  border: 1px solid #6d3630;
+  background-color: #2a1816;
+  color: #ff9b87;
+}
+
+p[role="status"] {
+  border: 1px solid #385c45;
+  background-color: #17251c;
+  color: #9fe0b5;
+}
+
+@media (max-width: 700px) {
+  fieldset {
+    grid-template-columns: 1fr;
+    padding: 22px;
+  }
+
+  fieldset > div:last-of-type,
+  button[type="submit"] {
+    grid-column: auto;
+  }
+
+  button[type="submit"] {
+    width: 100%;
+  }
+}
