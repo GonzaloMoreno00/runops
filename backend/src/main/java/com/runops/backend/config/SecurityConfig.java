@@ -108,7 +108,7 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(List.of("http://localhost:4200"));
 
-        configuration.setAllowedMethods(List.of("GET", "POST", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "DELETE", "PUT", "OPTIONS"));
 
         configuration.setAllowedHeaders(List.of("Content-Type", "X-CSRF-TOKEN"));
 

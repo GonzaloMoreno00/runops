@@ -1,4 +1,4 @@
-import { Component, output, signal } from '@angular/core';
+import { Component, effect, input, output, signal } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -8,6 +8,7 @@ import {
 
 import { WorkoutService } from '../../service/WorkoutService';
 import { CreateWorkoutRequest } from '../../model/create-workout-request';
+import { Workout } from '../../model/workout';
 
 @Component({
   selector: 'app-workout-form',
@@ -16,7 +17,12 @@ import { CreateWorkoutRequest } from '../../model/create-workout-request';
   styleUrl: './workout-form.css',
 })
 export class WorkoutForm {
+
   workoutCreated = output<void>();
+  workoutUpdated = output<void>();
+  editCancelled = output<void>();
+
+  workoutToEdit = input<Workout | null>(null);
 
   saving = signal(false);
   errorMessage = signal('');
@@ -45,9 +51,29 @@ export class WorkoutForm {
     })
   });
 
-  constructor(private workoutService: WorkoutService) { }
+  constructor(private workoutService: WorkoutService) {
+
+    effect(() => {
+      const workout = this.workoutToEdit();
+
+      if (!workout) {
+        return;
+      }
+
+      this.form.patchValue({
+        date: workout.date,
+        distanceKm: workout.distanceKm,
+        durationMinutes: workout.durationSeconds / 60,
+        notes: workout.notes ?? ''
+      });
+
+      this.errorMessage.set('');
+      this.successMessage.set('');
+    });
+  }
 
   submit(): void {
+
     if (this.saving()) {
       return;
     }
@@ -62,32 +88,80 @@ export class WorkoutForm {
 
     const values = this.form.getRawValue();
 
-    if (values.distanceKm === null || values.durationMinutes === null) {
+    if (
+      values.distanceKm === null ||
+      values.durationMinutes === null
+    ) {
       return;
     }
 
-    const workout: CreateWorkoutRequest = {
+    const workoutRequest: CreateWorkoutRequest = {
       date: values.date,
       distanceKm: Number(values.distanceKm),
-      durationSeconds: Math.round(Number(values.durationMinutes) * 60),
+      durationSeconds: Math.round(
+        Number(values.durationMinutes) * 60
+      ),
       notes: values.notes
     };
 
+    const workoutToEdit = this.workoutToEdit();
+
     this.saving.set(true);
 
-    this.workoutService.createWorkout(workout).subscribe({
-      next: () => {
-        this.saving.set(false);
-        this.form.reset();
-        this.successMessage.set('Entrenamiento guardado correctamente.');
-        this.workoutCreated.emit();
-      },
-      error: () => {
-        this.saving.set(false);
-        this.errorMessage.set(
-          'No se pudo guardar el entrenamiento. Comprueba los datos e inténtalo de nuevo.'
-        );
-      }
-    });
+    if (workoutToEdit && workoutToEdit.id != null) {
+
+      this.workoutService
+        .updateWorkout(workoutToEdit.id, workoutRequest)
+        .subscribe({
+          next: () => {
+            this.saving.set(false);
+            this.form.reset();
+
+            this.successMessage.set(
+              'Entrenamiento actualizado correctamente.'
+            );
+
+            this.workoutUpdated.emit();
+          },
+          error: () => {
+            this.saving.set(false);
+
+            this.errorMessage.set(
+              'No se pudo actualizar el entrenamiento. Comprueba los datos e inténtalo de nuevo.'
+            );
+          }
+        });
+
+      return;
+    }
+
+    this.workoutService
+      .createWorkout(workoutRequest)
+      .subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.form.reset();
+
+          this.successMessage.set(
+            'Entrenamiento guardado correctamente.'
+          );
+
+          this.workoutCreated.emit();
+        },
+        error: () => {
+          this.saving.set(false);
+
+          this.errorMessage.set(
+            'No se pudo guardar el entrenamiento. Comprueba los datos e inténtalo de nuevo.'
+          );
+        }
+      });
+  }
+
+  cancelEdit(): void {
+    this.form.reset();
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.editCancelled.emit();
   }
 }

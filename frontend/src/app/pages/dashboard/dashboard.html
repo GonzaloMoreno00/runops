@@ -4,7 +4,12 @@
     RunOps.
   </a>
 
-  <button class="logout-button" type="button" (click)="logout()" [disabled]="loggingOut()">
+  <button
+    class="logout-button"
+    type="button"
+    (click)="logout()"
+    [disabled]="loggingOut()"
+  >
     {{ loggingOut() ? 'Cerrando sesión...' : 'Cerrar sesión' }}
   </button>
 
@@ -15,20 +20,34 @@
   <h1>Mis entrenamientos</h1>
 
   @if (successMessage()) {
-  <p class="success-message" role="status">
-    {{ successMessage() }}
-  </p>
+    <p class="success-message" role="status">
+      {{ successMessage() }}
+    </p>
   }
 
   @if (logoutError()) {
-  <p class="logout-error" role="alert">
-    {{ logoutError() }}
-  </p>
+    <p class="logout-error" role="alert">
+      {{ logoutError() }}
+    </p>
   }
 
-  <app-workout-form (workoutCreated)="loadWorkouts()" />
+  <section id="workout-form-section">
 
-  <app-workout-history [workouts]="workouts()" [loading]="loading()" [errorMessage]="errorMessage()"
-    (workoutDeleted)="deleteWorkout($event)" />
+    <app-workout-form
+      [workoutToEdit]="editingWorkout()"
+      (workoutCreated)="onWorkoutCreated()"
+      (workoutUpdated)="onWorkoutUpdated()"
+      (editCancelled)="editingWorkout.set(null)"
+    />
+
+  </section>
+
+  <app-workout-history
+    [workouts]="workouts()"
+    [loading]="loading()"
+    [errorMessage]="errorMessage()"
+    (workoutDeleted)="deleteWorkout($event)"
+    (workoutEdited)="editWorkout($event)"
+  />
 
 </main>

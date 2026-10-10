@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -82,5 +83,15 @@ public class WorkoutController {
         return userRepository
                 .findByEmail(authentication.getName())
                 .orElseThrow();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<WorkoutResponse> updateWorkout(@PathVariable Long id, @RequestBody CreateWorkoutRequest request, Authentication authentication) {
+
+        User user = getAuthenticatedUser(authentication);
+
+        WorkoutResponse updatedWorkout = workoutService.updateWorkout(id, request, user);
+
+        return ResponseEntity.ok(updatedWorkout);
     }
 }

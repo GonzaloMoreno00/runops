@@ -1,42 +1,42 @@
 <h2>Entrenamientos</h2>
 
 @if (loading()) {
-  <p>Cargando entrenamientos...</p>
+<p>Cargando entrenamientos...</p>
 } @else if (errorMessage()) {
-  <p role="alert">{{ errorMessage() }}</p>
+<p role="alert">{{ errorMessage() }}</p>
 } @else {
-  <ul>
-    @for (workout of workouts(); track workout.id) {
-      <li>
-        <p>Fecha: {{ workout.date | date:'dd/MM/yyyy' }}</p>
-        <p>Distancia: {{ workout.distanceKm }} km</p>
-        <p>Duración: {{ formatSeconds(workout.durationSeconds) }}</p>
+<ul>
+  @for (workout of workouts(); track workout.id) {
+  <li>
+    <p>Fecha: {{ workout.date | date:'dd/MM/yyyy' }}</p>
+    <p>Distancia: {{ workout.distanceKm }} km</p>
+    <p>Duración: {{ formatSeconds(workout.durationSeconds) }}</p>
 
-        @if (workout.averagePaceSecondsPerKm != null) {
-          <p>
-            Ritmo medio:
-            {{ formatSeconds(workout.averagePaceSecondsPerKm) }} min/km
-          </p>
-        } @else {
-          <p>Ritmo medio: Sin calcular</p>
-        }
-
-        @if (workout.notes) {
-          <p>Notas: {{ workout.notes }}</p>
-        }
-
-        @if (workout.id != null) {
-          <button
-            type="button"
-            class="delete-button"
-            (click)="deleteWorkout(workout.id)"
-          >
-            Eliminar
-          </button>
-        }
-      </li>
-    } @empty {
-      <li>Todavía no hay entrenamientos registrados.</li>
+    @if (workout.averagePaceSecondsPerKm != null) {
+    <p>
+      Ritmo medio:
+      {{ formatSeconds(workout.averagePaceSecondsPerKm) }} min/km
+    </p>
+    } @else {
+    <p>Ritmo medio: Sin calcular</p>
     }
-  </ul>
+
+    @if (workout.notes) {
+    <p>Notas: {{ workout.notes }}</p>
+    }
+
+    @if (workout.id != null) {
+    <button type="button" class="edit-button" (click)="editWorkout(workout)">
+      Editar
+    </button>
+
+    <button type="button" class="delete-button" (click)="deleteWorkout(workout.id)">
+      Eliminar
+    </button>
+    }
+  </li>
+  } @empty {
+  <li>Todavía no hay entrenamientos registrados.</li>
+  }
+</ul>
 }
