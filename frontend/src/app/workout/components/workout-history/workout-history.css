@@ -59,3 +59,25 @@ p[role="alert"] {
   background-color: #2a1816;
   color: #ff9b87;
 }
+
+.delete-button {
+  margin-top: 8px;
+  padding: 10px 14px;
+  border: 1px solid #a94442;
+  border-radius: 8px;
+  background-color: transparent;
+  color: #ff8f87;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    transform 0.2s;
+}
+
+.delete-button:hover {
+  background-color: #a94442;
+  color: #ffffff;
+  transform: translateY(-1px);
+}

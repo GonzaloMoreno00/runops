@@ -19,10 +19,20 @@
           </p>
         } @else {
           <p>Ritmo medio: Sin calcular</p>
-    }
+        }
 
         @if (workout.notes) {
           <p>Notas: {{ workout.notes }}</p>
+        }
+
+        @if (workout.id != null) {
+          <button
+            type="button"
+            class="delete-button"
+            (click)="deleteWorkout(workout.id)"
+          >
+            Eliminar
+          </button>
         }
       </li>
     } @empty {

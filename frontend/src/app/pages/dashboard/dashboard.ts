@@ -18,6 +18,7 @@ export class Dashboard implements OnInit {
   workouts = signal<Workout[]>([]);
   loading = signal(true);
   errorMessage = signal('');
+  successMessage = signal('');
 
   loggingOut = signal(false);
   logoutError = signal('');
@@ -26,7 +27,7 @@ export class Dashboard implements OnInit {
     private workoutService: WorkoutService,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadWorkouts();
@@ -46,6 +47,27 @@ export class Dashboard implements OnInit {
           'No se pudieron cargar los entrenamientos. Inténtalo de nuevo más tarde.'
         );
         this.loading.set(false);
+      }
+    });
+  }
+
+  deleteWorkout(id: number): void {
+
+    this.errorMessage.set('');
+    this.successMessage.set('');
+
+    this.workoutService.deleteWorkout(id).subscribe({
+      next: () => {
+        this.successMessage.set(
+          'Entrenamiento eliminado correctamente.'
+        );
+
+        this.loadWorkouts();
+      },
+      error: () => {
+        this.errorMessage.set(
+          'No se pudo eliminar el entrenamiento. Inténtalo de nuevo.'
+        );
       }
     });
   }

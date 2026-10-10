@@ -32,8 +32,7 @@ public class WorkoutService {
                 || calculatedPace < 0.5
                 || calculatedPace >= Integer.MAX_VALUE + 0.5) {
 
-
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid workout distance or duration");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid workout distance or duration");
         }
 
         int averagePace = (int) Math.round(calculatedPace);
@@ -53,31 +52,39 @@ public class WorkoutService {
         return toResponse(savedWorkout);
     }
 
+    public void deleteWorkout(Long id, User user) {
+
+        Workout workout = workoutRepository
+                .findByIdAndUserId(id, user.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Workout not found"));
+
+        workoutRepository.delete(workout);
+    }
+
     public List<WorkoutResponse> getAllWorkouts(User user) {
 
         return workoutRepository
-            .findAllByUserIdOrderByDateDescIdDesc(user.getId())
-            .stream()
-            .map(this::toResponse)
-            .toList();
+                .findAllByUserIdOrderByDateDescIdDesc(user.getId())
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public Optional<WorkoutResponse> getWorkoutById(Long id,User user) {
+    public Optional<WorkoutResponse> getWorkoutById(Long id, User user) {
 
         return workoutRepository
-            .findByIdAndUserId(id, user.getId())
-            .map(this::toResponse);
+                .findByIdAndUserId(id, user.getId())
+                .map(this::toResponse);
     }
 
     private WorkoutResponse toResponse(Workout workout) {
 
         return new WorkoutResponse(
-            workout.getId(),
-            workout.getDate(),
-            workout.getDistanceKm(),
-            workout.getDurationSeconds(),
-            workout.getAveragePaceSecondsPerKm(),
-            workout.getNotes()
-        );
+                workout.getId(),
+                workout.getDate(),
+                workout.getDistanceKm(),
+                workout.getDurationSeconds(),
+                workout.getAveragePaceSecondsPerKm(),
+                workout.getNotes());
     }
 }
