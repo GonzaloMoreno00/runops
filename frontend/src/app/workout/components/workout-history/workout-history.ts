@@ -18,11 +18,18 @@ export class WorkoutHistory {
   @Output()
   workoutDeleted = new EventEmitter<number>();
 
+  @Output()
+  workoutEdited = new EventEmitter<Workout>();
+
   formatSeconds(totalSeconds: number): string {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
 
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  editWorkout(workout: Workout): void {
+    this.workoutEdited.emit(workout);
   }
 
   deleteWorkout(id: number): void {

@@ -24,23 +24,39 @@ public class WorkoutService {
 
     public WorkoutResponse createWorkout(CreateWorkoutRequest request, User user) {
 
-        // Calculate average pace from distance and duration.
-        double calculatedPace = request.durationSeconds() / request.distanceKm();
+        int averagePace = calculateAveragePace(
+                request.distanceKm(),
+                request.durationSeconds()
+        );
 
-        // Check that the calculated pace is valid.
-        if (!Double.isFinite(calculatedPace)
-                || calculatedPace < 0.5
-                || calculatedPace >= Integer.MAX_VALUE + 0.5) {
-
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid workout distance or duration");
-        }
-
-        int averagePace = (int) Math.round(calculatedPace);
-
-        // Build a new entity from the request data.
         Workout workout = new Workout();
 
         workout.setUser(user);
+        workout.setDate(request.date());
+        workout.setDistanceKm(request.distanceKm());
+        workout.setDurationSeconds(request.durationSeconds());
+        workout.setAveragePaceSecondsPerKm(averagePace);
+        workout.setNotes(request.notes());
+
+        Workout savedWorkout = workoutRepository.save(workout);
+
+        return toResponse(savedWorkout);
+    }
+
+    public WorkoutResponse updateWorkout(Long id, CreateWorkoutRequest request, User user) {
+
+        Workout workout = workoutRepository
+                .findByIdAndUserId(id, user.getId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Workout not found"
+                ));
+
+        int averagePace = calculateAveragePace(
+                request.distanceKm(),
+                request.durationSeconds()
+        );
+
         workout.setDate(request.date());
         workout.setDistanceKm(request.distanceKm());
         workout.setDurationSeconds(request.durationSeconds());
@@ -56,7 +72,10 @@ public class WorkoutService {
 
         Workout workout = workoutRepository
                 .findByIdAndUserId(id, user.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Workout not found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Workout not found"
+                ));
 
         workoutRepository.delete(workout);
     }
@@ -77,6 +96,23 @@ public class WorkoutService {
                 .map(this::toResponse);
     }
 
+    private int calculateAveragePace(double distanceKm, int durationSeconds) {
+
+        double calculatedPace = durationSeconds / distanceKm;
+
+        if (!Double.isFinite(calculatedPace)
+                || calculatedPace < 0.5
+                || calculatedPace >= Integer.MAX_VALUE + 0.5) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid workout distance or duration"
+            );
+        }
+
+        return (int) Math.round(calculatedPace);
+    }
+
     private WorkoutResponse toResponse(Workout workout) {
 
         return new WorkoutResponse(
@@ -85,6 +121,7 @@ public class WorkoutService {
                 workout.getDistanceKm(),
                 workout.getDurationSeconds(),
                 workout.getAveragePaceSecondsPerKm(),
-                workout.getNotes());
+                workout.getNotes()
+        );
     }
 }

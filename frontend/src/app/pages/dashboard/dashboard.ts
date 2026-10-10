@@ -19,6 +19,7 @@ export class Dashboard implements OnInit {
   loading = signal(true);
   errorMessage = signal('');
   successMessage = signal('');
+  editingWorkout = signal<Workout | null>(null);
 
   loggingOut = signal(false);
   logoutError = signal('');
@@ -72,6 +73,19 @@ export class Dashboard implements OnInit {
     });
   }
 
+  editWorkout(workout: Workout): void {
+    this.editingWorkout.set(workout);
+
+    setTimeout(() => {
+      document
+        .getElementById('workout-form-section')
+        ?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+    });
+  }
+
   logout(): void {
 
     if (this.loggingOut()) {
@@ -93,5 +107,15 @@ export class Dashboard implements OnInit {
         );
       }
     });
+  }
+
+  onWorkoutCreated(): void {
+    this.editingWorkout.set(null);
+    this.loadWorkouts();
+  }
+
+  onWorkoutUpdated(): void {
+    this.editingWorkout.set(null);
+    this.loadWorkouts();
   }
 }

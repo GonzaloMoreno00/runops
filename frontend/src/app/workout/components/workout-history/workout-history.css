@@ -81,3 +81,26 @@ p[role="alert"] {
   color: #ffffff;
   transform: translateY(-1px);
 }
+
+.edit-button {
+  margin-top: 8px;
+  margin-right: 10px;
+  padding: 10px 14px;
+  border: 1px solid #ff8c42;
+  border-radius: 8px;
+  background-color: transparent;
+  color: #ff8c42;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    transform 0.2s;
+}
+
+.edit-button:hover {
+  background-color: #ff8c42;
+  color: #111111;
+  transform: translateY(-1px);
+}

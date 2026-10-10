@@ -111,6 +111,31 @@ button[type="submit"]:disabled {
   cursor: not-allowed;
 }
 
+.cancel-button {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding: 12px 20px;
+  border: 1px solid #666666;
+  border-radius: 8px;
+  background-color: transparent;
+  color: #d7d7d7;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    transform 0.2s;
+}
+
+.cancel-button:hover {
+  border-color: #999999;
+  background-color: #2a2a2a;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
 p[role="alert"],
 p[role="status"] {
   margin: 16px 0 0;
@@ -132,17 +157,20 @@ p[role="status"] {
 }
 
 @media (max-width: 700px) {
+
   fieldset {
     grid-template-columns: 1fr;
     padding: 22px;
   }
 
   fieldset > div:last-of-type,
-  button[type="submit"] {
+  button[type="submit"],
+  .cancel-button {
     grid-column: auto;
   }
 
-  button[type="submit"] {
+  button[type="submit"],
+  .cancel-button {
     width: 100%;
   }
 }

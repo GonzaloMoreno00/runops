@@ -1,4 +1,6 @@
-<h2>Registrar entrenamiento</h2>
+<h2>
+  {{ workoutToEdit() ? 'Editar entrenamiento' : 'Registrar entrenamiento' }}
+</h2>
 
 <form [formGroup]="form" (ngSubmit)="submit()">
   <fieldset [disabled]="saving()">
@@ -71,8 +73,22 @@
     </div>
 
     <button type="submit" [disabled]="saving()">
-      {{ saving() ? 'Guardando...' : 'Guardar entrenamiento' }}
+      @if (saving()) {
+        {{ workoutToEdit() ? 'Actualizando...' : 'Guardando...' }}
+      } @else {
+        {{ workoutToEdit() ? 'Actualizar entrenamiento' : 'Guardar entrenamiento' }}
+      }
     </button>
+
+    @if (workoutToEdit()) {
+      <button
+        type="button"
+        class="cancel-button"
+        (click)="cancelEdit()"
+      >
+        Cancelar edición
+      </button>
+    }
   </fieldset>
 </form>
 

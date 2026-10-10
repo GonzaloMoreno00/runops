@@ -73,4 +73,30 @@ export class WorkoutService {
       })
     );
   }
+
+  updateWorkout(
+    id: number,
+    request: CreateWorkoutRequest
+  ): Observable<Workout> {
+
+    return this.http
+      .get<CsrfResponse>(
+        `${this.authUrl}/csrf`,
+        { withCredentials: true }
+      )
+      .pipe(
+        switchMap(csrf =>
+          this.http.put<Workout>(
+            `${this.apiUrl}/${id}`,
+            request,
+            {
+              withCredentials: true,
+              headers: {
+                [csrf.headerName]: csrf.token
+              }
+            }
+          )
+        )
+      );
+  }
 }

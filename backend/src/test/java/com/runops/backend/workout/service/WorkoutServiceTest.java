@@ -176,6 +176,76 @@ class WorkoutServiceTest {
                                 .findByIdAndUserId(99L, user.getId());
         }
 
+        @Test
+        void shouldUpdateWorkoutWhenItBelongsToUser() {
+
+                WorkoutRepository mockRepository = mock(WorkoutRepository.class);
+                WorkoutService service = new WorkoutService(mockRepository);
+
+                User user = createTestUser();
+
+                Workout workout = createWorkout(user, 5.0, 1500);
+
+                CreateWorkoutRequest request = new CreateWorkoutRequest(
+                                LocalDate.of(2026, 10, 10),
+                                10.0,
+                                3000,
+                                "Entrenamiento actualizado");
+
+                when(mockRepository.findByIdAndUserId(1L, user.getId()))
+                                .thenReturn(Optional.of(workout));
+
+                when(mockRepository.save(workout))
+                                .thenReturn(workout);
+
+                WorkoutResponse result = service.updateWorkout(
+                                1L,
+                                request,
+                                user);
+
+                assertEquals(LocalDate.of(2026, 10, 10), result.date());
+                assertEquals(10.0, result.distanceKm());
+                assertEquals(3000, result.durationSeconds());
+                assertEquals(300, result.averagePaceSecondsPerKm());
+                assertEquals("Entrenamiento actualizado", result.notes());
+
+                verify(mockRepository)
+                                .findByIdAndUserId(1L, user.getId());
+
+                verify(mockRepository)
+                                .save(workout);
+        }
+
+        @Test
+        void shouldThrowNotFoundWhenUpdatingWorkoutThatDoesNotBelongToUser() {
+
+                WorkoutRepository mockRepository = mock(WorkoutRepository.class);
+                WorkoutService service = new WorkoutService(mockRepository);
+
+                User user = createTestUser();
+
+                CreateWorkoutRequest request = new CreateWorkoutRequest(
+                                LocalDate.of(2026, 10, 10),
+                                10.0,
+                                3000,
+                                "Entrenamiento actualizado");
+
+                when(mockRepository.findByIdAndUserId(99L, user.getId()))
+                                .thenReturn(Optional.empty());
+
+                ResponseStatusException exception = assertThrows(
+                                ResponseStatusException.class,
+                                () -> service.updateWorkout(
+                                                99L,
+                                                request,
+                                                user));
+
+                assertEquals(404, exception.getStatusCode().value());
+
+                verify(mockRepository)
+                                .findByIdAndUserId(99L, user.getId());
+        }
+
         private User createTestUser() {
 
                 User user = mock(User.class);
@@ -245,4 +315,5 @@ class WorkoutServiceTest {
                 verify(mockRepository)
                                 .findByIdAndUserId(99L, user.getId());
         }
+
 }
