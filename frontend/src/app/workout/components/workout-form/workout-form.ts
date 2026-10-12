@@ -57,6 +57,7 @@ export class WorkoutForm {
       const workout = this.workoutToEdit();
 
       if (!workout) {
+        this.form.reset();
         return;
       }
 
