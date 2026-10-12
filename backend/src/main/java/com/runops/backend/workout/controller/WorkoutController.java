@@ -86,7 +86,7 @@ public class WorkoutController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<WorkoutResponse> updateWorkout(@PathVariable Long id, @RequestBody CreateWorkoutRequest request, Authentication authentication) {
+    public ResponseEntity<WorkoutResponse> updateWorkout(@PathVariable Long id, @Valid @RequestBody CreateWorkoutRequest request, Authentication authentication) {
 
         User user = getAuthenticatedUser(authentication);
 

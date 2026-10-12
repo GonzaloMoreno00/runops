@@ -19,7 +19,9 @@ export class Dashboard implements OnInit {
   loading = signal(true);
   errorMessage = signal('');
   successMessage = signal('');
+  deleteErrorMessage = signal('');
   editingWorkout = signal<Workout | null>(null);
+
 
   loggingOut = signal(false);
   logoutError = signal('');
@@ -54,11 +56,16 @@ export class Dashboard implements OnInit {
 
   deleteWorkout(id: number): void {
 
-    this.errorMessage.set('');
+    this.deleteErrorMessage.set('');
     this.successMessage.set('');
 
     this.workoutService.deleteWorkout(id).subscribe({
       next: () => {
+
+        if (this.editingWorkout()?.id === id) {
+          this.editingWorkout.set(null);
+        }
+
         this.successMessage.set(
           'Entrenamiento eliminado correctamente.'
         );
@@ -66,7 +73,7 @@ export class Dashboard implements OnInit {
         this.loadWorkouts();
       },
       error: () => {
-        this.errorMessage.set(
+        this.deleteErrorMessage.set(
           'No se pudo eliminar el entrenamiento. Inténtalo de nuevo.'
         );
       }

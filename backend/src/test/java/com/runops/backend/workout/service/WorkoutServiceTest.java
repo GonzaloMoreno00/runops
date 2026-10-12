@@ -189,7 +189,7 @@ class WorkoutServiceTest {
                 CreateWorkoutRequest request = new CreateWorkoutRequest(
                                 LocalDate.of(2026, 10, 10),
                                 10.0,
-                                3000,
+                                3600,
                                 "Entrenamiento actualizado");
 
                 when(mockRepository.findByIdAndUserId(1L, user.getId()))
@@ -205,8 +205,8 @@ class WorkoutServiceTest {
 
                 assertEquals(LocalDate.of(2026, 10, 10), result.date());
                 assertEquals(10.0, result.distanceKm());
-                assertEquals(3000, result.durationSeconds());
-                assertEquals(300, result.averagePaceSecondsPerKm());
+                assertEquals(3600, result.durationSeconds());
+                assertEquals(360, result.averagePaceSecondsPerKm());
                 assertEquals("Entrenamiento actualizado", result.notes());
 
                 verify(mockRepository)
