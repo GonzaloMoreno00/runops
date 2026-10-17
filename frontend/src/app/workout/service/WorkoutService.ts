@@ -4,7 +4,7 @@ import { Observable, switchMap } from 'rxjs';
 
 import { Workout } from '../model/workout';
 import { CreateWorkoutRequest } from '../model/create-workout-request';
-
+import { MonthlyWorkoutSummary } from '../model/monthly-workout-summary';
 interface CsrfResponse {
   headerName: string;
   token: string;
@@ -98,5 +98,21 @@ export class WorkoutService {
           )
         )
       );
+  }
+
+  getMonthlySummary(
+    year: number,
+    month: number
+  ): Observable<MonthlyWorkoutSummary> {
+    return this.http.get<MonthlyWorkoutSummary>(
+      `${this.apiUrl}/summary`,
+      {
+        params: {
+          year,
+          month
+        },
+        withCredentials: true
+      }
+    );
   }
 }

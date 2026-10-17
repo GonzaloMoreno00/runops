@@ -32,6 +32,68 @@
   </p>
   }
 
+    <section class="monthly-summary" aria-labelledby="monthly-summary-title" [attr.aria-busy]="summaryLoading()">
+      <div class="summary-header">
+        <div>
+          <h2 id="monthly-summary-title">Resumen mensual</h2>
+          <p class="summary-description">
+            Consulta tus totales del mes seleccionado.
+          </p>
+        </div>
+
+        <div class="month-selector">
+          <label for="summary-month">Mes del resumen</label>
+
+          <input #monthInput id="summary-month" type="month" min="0001-01" max="9999-12" required
+            [value]="selectedMonth()" (change)="onMonthChange(monthInput.value)" />
+        </div>
+      </div>
+
+      @if (summaryLoading()) {
+      <p role="status">Cargando resumen...</p>
+      } @else if (summaryError()) {
+      <div class="summary-error">
+        <p role="alert">{{ summaryError() }}</p>
+
+        <button type="button" (click)="loadMonthlySummary()">
+          Reintentar
+        </button>
+      </div>
+      } @else if (monthlySummary(); as summary) {
+      <dl class="summary-grid">
+        <div class="summary-card">
+          <dt>Distancia total</dt>
+          <dd>{{ summary.totalDistanceKm | number:'1.0-2' }} km</dd>
+        </div>
+
+        <div class="summary-card">
+          <dt>Entrenamientos</dt>
+          <dd>{{ summary.workoutCount }}</dd>
+        </div>
+
+        <div class="summary-card">
+          <dt>Tiempo total</dt>
+          <dd>{{ formatDuration(summary.totalDurationSeconds) }}</dd>
+        </div>
+
+        <div class="summary-card">
+          <dt>Ritmo global</dt>
+          <dd>{{ formatPace(summary.averagePaceSecondsPerKm) }}</dd>
+        </div>
+      </dl>
+
+      @if (summary.workoutCount === 0) {
+      <p class="summary-empty">
+        No hay entrenamientos registrados en este mes.
+      </p>
+      }
+      }
+
+      <p class="summary-description">
+        El selector afecta al resumen. El historial muestra todos tus entrenamientos.
+      </p>
+    </section>
+
   <section id="workout-form-section">
 
     <app-workout-form [workoutToEdit]="editingWorkout()" (workoutCreated)="onWorkoutCreated()"

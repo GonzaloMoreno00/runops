@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.runops.backend.user.model.User;
 import com.runops.backend.workout.dto.CreateWorkoutRequest;
+import com.runops.backend.workout.dto.MonthlyWorkoutSummaryResponse;
 import com.runops.backend.workout.dto.WorkoutResponse;
 import com.runops.backend.workout.model.Workout;
 import com.runops.backend.workout.repository.WorkoutRepository;
@@ -314,6 +315,107 @@ class WorkoutServiceTest {
 
                 verify(mockRepository)
                                 .findByIdAndUserId(99L, user.getId());
+        }
+
+        @Test
+        void shouldCalculateMonthlySummaryUsingTotalTimeAndDistance() {
+                WorkoutRepository repository = mock(WorkoutRepository.class);
+                WorkoutService service = new WorkoutService(repository);
+                User user = createTestUser();
+
+                Workout firstWorkout = createWorkout(user, 5.0, 1500);
+                Workout secondWorkout = createWorkout(user, 10.0, 3600);
+
+                LocalDate startDate = LocalDate.of(2026, 10, 1);
+                LocalDate endDate = LocalDate.of(2026, 11, 1);
+
+                when(repository
+                                .findAllByUserIdAndDateGreaterThanEqualAndDateLessThan(
+                                                user.getId(), startDate, endDate))
+                                .thenReturn(List.of(firstWorkout, secondWorkout));
+
+                MonthlyWorkoutSummaryResponse result = service.getMonthlySummary(2026, 10, user);
+
+                assertEquals(2026, result.year());
+                assertEquals(10, result.month());
+                assertEquals(2, result.workoutCount());
+                assertEquals(15.0, result.totalDistanceKm(), 0.000001);
+                assertEquals(5100L, result.totalDurationSeconds());
+                assertEquals(
+                                Integer.valueOf(340),
+                                result.averagePaceSecondsPerKm());
+
+                verify(repository)
+                                .findAllByUserIdAndDateGreaterThanEqualAndDateLessThan(
+                                                user.getId(), startDate, endDate);
+        }
+
+        @Test
+        void shouldReturnZeroTotalsAndNullPaceForEmptyMonth() {
+                WorkoutRepository repository = mock(WorkoutRepository.class);
+                WorkoutService service = new WorkoutService(repository);
+                User user = createTestUser();
+
+                when(repository
+                                .findAllByUserIdAndDateGreaterThanEqualAndDateLessThan(
+                                                user.getId(),
+                                                LocalDate.of(2026, 10, 1),
+                                                LocalDate.of(2026, 11, 1)))
+                                .thenReturn(List.of());
+
+                MonthlyWorkoutSummaryResponse result = service.getMonthlySummary(2026, 10, user);
+
+                assertEquals(0, result.workoutCount());
+                assertEquals(0.0, result.totalDistanceKm(), 0.000001);
+                assertEquals(0L, result.totalDurationSeconds());
+                assertNull(result.averagePaceSecondsPerKm());
+        }
+
+        @Test
+        void shouldUseNextYearAsExclusiveEndForDecember() {
+                WorkoutRepository repository = mock(WorkoutRepository.class);
+                WorkoutService service = new WorkoutService(repository);
+                User user = createTestUser();
+
+                LocalDate startDate = LocalDate.of(2026, 12, 1);
+                LocalDate endDate = LocalDate.of(2027, 1, 1);
+
+                when(repository
+                                .findAllByUserIdAndDateGreaterThanEqualAndDateLessThan(
+                                                user.getId(), startDate, endDate))
+                                .thenReturn(List.of());
+
+                service.getMonthlySummary(2026, 12, user);
+
+                verify(repository)
+                                .findAllByUserIdAndDateGreaterThanEqualAndDateLessThan(
+                                                user.getId(), startDate, endDate);
+        }
+
+        @Test
+        void shouldRejectInvalidMonth() {
+                WorkoutRepository repository = mock(WorkoutRepository.class);
+                WorkoutService service = new WorkoutService(repository);
+                User user = createTestUser();
+
+                ResponseStatusException exception = assertThrows(
+                                ResponseStatusException.class,
+                                () -> service.getMonthlySummary(2026, 13, user));
+
+                assertEquals(400, exception.getStatusCode().value());
+        }
+
+        @Test
+        void shouldRejectInvalidYear() {
+                WorkoutRepository repository = mock(WorkoutRepository.class);
+                WorkoutService service = new WorkoutService(repository);
+                User user = createTestUser();
+
+                ResponseStatusException exception = assertThrows(
+                                ResponseStatusException.class,
+                                () -> service.getMonthlySummary(0, 10, user));
+
+                assertEquals(400, exception.getStatusCode().value());
         }
 
 }
