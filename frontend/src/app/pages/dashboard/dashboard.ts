@@ -10,10 +10,11 @@ import { WorkoutService } from '../../workout/service/WorkoutService';
 import { WorkoutForm } from '../../workout/components/workout-form/workout-form';
 import { WorkoutHistory } from '../../workout/components/workout-history/workout-history';
 import { MonthlyWorkoutSummary } from '../../workout/model/monthly-workout-summary';
+import { WeeklyDistanceChart } from '../../workout/components/weekly-distance-chart/weekly-distance-chart';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [WorkoutForm, WorkoutHistory, RouterLink, DecimalPipe],
+  imports: [WorkoutForm, WorkoutHistory, WeeklyDistanceChart, RouterLink, DecimalPipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })

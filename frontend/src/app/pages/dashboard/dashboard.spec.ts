@@ -62,6 +62,31 @@ describe('Dashboard monthly summary and history', () => {
     return fixture.nativeElement.querySelector('.monthly-summary');
   }
 
+  it('should update the weekly chart with the selected history and hide stale bars during loading', async () => {
+    const chart: HTMLElement = fixture.nativeElement.querySelector('app-weekly-distance-chart');
+    expect(chart.querySelectorAll('.weekly-row')).toHaveLength(5);
+    expect(chart.textContent).toContain('5 km');
+
+    const response = new Subject<Workout[]>();
+    workoutServiceMock.getMonthlyWorkouts.mockReturnValueOnce(response);
+    await selectMonth('2026-09');
+
+    expect(chart.textContent).toContain('Cargando evolución semanal...');
+    expect(chart.querySelector('.weekly-bars')).toBeNull();
+
+    response.next([{
+      id: 2, date: '2026-09-07', distanceKm: 12, durationSeconds: 3600,
+      averagePaceSecondsPerKm: 300, notes: null
+    }]);
+    response.complete();
+    await fixture.whenStable();
+
+    const rows = chart.querySelectorAll('.weekly-row');
+    expect(rows[1].textContent).toContain('7–13');
+    expect(rows[1].textContent).toContain('12 km');
+    expect(chart.textContent).not.toContain('5 km');
+  });
+
   it('should open a blank form, focus the date, and discard cancelled input', async () => {
     expect(fixture.nativeElement.querySelector('app-workout-form')).toBeNull();
     const addButton: HTMLButtonElement = fixture.nativeElement.querySelector('#add-workout-button');
