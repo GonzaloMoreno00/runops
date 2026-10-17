@@ -1,0 +1,33 @@
+<section class="weekly-chart" aria-labelledby="weekly-chart-title" [attr.aria-busy]="loading()">
+  <h2 id="weekly-chart-title">Kilómetros por semana</h2>
+  <p class="chart-description">
+    Semanas de lunes a domingo. Solo se cuentan los días del mes seleccionado.
+  </p>
+
+  @if (loading()) {
+    <p role="status">Cargando evolución semanal...</p>
+  } @else if (errorMessage()) {
+    <p role="alert">{{ errorMessage() }}</p>
+    <button type="button" (click)="retry.emit()">Reintentar</button>
+  } @else if (weeks().length) {
+    <p class="chart-key">Días del mes · Distancia en km</p>
+    <dl class="weekly-bars">
+      @for (week of weeks(); track week.startDate) {
+        <div class="weekly-row">
+          <dt><span class="sr-only">Días </span>{{ week.label }}</dt>
+          <dd>
+            <span class="bar-track" aria-hidden="true">
+              <span class="bar-fill" [style.width.%]="week.distanceKm / maximumDistance() * 100"></span>
+            </span>
+            <span class="distance">{{ week.distanceKm | number:'1.0-2' }} km</span>
+          </dd>
+        </div>
+      }
+    </dl>
+    @if (!hasDistance()) {
+      <p class="chart-description">Todavía no hay kilómetros registrados en este mes.</p>
+    }
+  } @else {
+    <p>Selecciona un mes válido para ver la evolución semanal.</p>
+  }
+</section>
