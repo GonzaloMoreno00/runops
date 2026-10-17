@@ -14,6 +14,7 @@ export class WorkoutHistory {
   workouts = input<Workout[]>([]);
   loading = input(false);
   errorMessage = input('');
+  emptyMessage = input('Todavía no hay entrenamientos registrados.');
 
   @Output()
   workoutDeleted = new EventEmitter<number>();

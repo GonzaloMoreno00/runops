@@ -17,5 +17,10 @@ public interface WorkoutRepository extends JpaRepository<Workout, Long> {
             LocalDate startDate,
             LocalDate endDate);
 
+    List<Workout> findAllByUserIdAndDateGreaterThanEqualAndDateLessThanOrderByDateDescIdDesc(
+            Long userId,
+            LocalDate startDate,
+            LocalDate endDate);
+
     Optional<Workout> findByIdAndUserId(Long id, Long userId);
 }
