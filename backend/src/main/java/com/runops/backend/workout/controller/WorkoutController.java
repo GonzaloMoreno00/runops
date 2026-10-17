@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.runops.backend.user.model.User;
 import com.runops.backend.user.repository.UserRepository;
 import com.runops.backend.workout.dto.CreateWorkoutRequest;
 import com.runops.backend.workout.dto.WorkoutResponse;
 import com.runops.backend.workout.service.WorkoutService;
+import com.runops.backend.workout.dto.MonthlyWorkoutSummaryResponse;
 
 import jakarta.validation.Valid;
 
@@ -86,12 +88,25 @@ public class WorkoutController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<WorkoutResponse> updateWorkout(@PathVariable Long id, @Valid @RequestBody CreateWorkoutRequest request, Authentication authentication) {
+    public ResponseEntity<WorkoutResponse> updateWorkout(@PathVariable Long id,
+            @Valid @RequestBody CreateWorkoutRequest request, Authentication authentication) {
 
         User user = getAuthenticatedUser(authentication);
 
         WorkoutResponse updatedWorkout = workoutService.updateWorkout(id, request, user);
 
         return ResponseEntity.ok(updatedWorkout);
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<MonthlyWorkoutSummaryResponse> getMonthlySummary(
+            @RequestParam("year") int year,
+            @RequestParam("month") int month,
+            Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+
+        MonthlyWorkoutSummaryResponse summary = workoutService.getMonthlySummary(year, month, user);
+
+        return ResponseEntity.ok(summary);
     }
 }
