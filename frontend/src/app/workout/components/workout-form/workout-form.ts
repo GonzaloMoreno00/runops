@@ -20,13 +20,12 @@ export class WorkoutForm {
 
   workoutCreated = output<void>();
   workoutUpdated = output<void>();
-  editCancelled = output<void>();
+  cancelled = output<void>();
 
   workoutToEdit = input<Workout | null>(null);
 
   saving = signal(false);
   errorMessage = signal('');
-  successMessage = signal('');
 
   form = new FormGroup({
     date: new FormControl('', {
@@ -69,7 +68,6 @@ export class WorkoutForm {
       });
 
       this.errorMessage.set('');
-      this.successMessage.set('');
     });
   }
 
@@ -80,7 +78,6 @@ export class WorkoutForm {
     }
 
     this.errorMessage.set('');
-    this.successMessage.set('');
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -118,10 +115,6 @@ export class WorkoutForm {
             this.saving.set(false);
             this.form.reset();
 
-            this.successMessage.set(
-              'Entrenamiento actualizado correctamente.'
-            );
-
             this.workoutUpdated.emit();
           },
           error: () => {
@@ -143,10 +136,6 @@ export class WorkoutForm {
           this.saving.set(false);
           this.form.reset();
 
-          this.successMessage.set(
-            'Entrenamiento guardado correctamente.'
-          );
-
           this.workoutCreated.emit();
         },
         error: () => {
@@ -159,10 +148,12 @@ export class WorkoutForm {
       });
   }
 
-  cancelEdit(): void {
+  cancel(): void {
+    if (this.saving()) {
+      return;
+    }
     this.form.reset();
     this.errorMessage.set('');
-    this.successMessage.set('');
-    this.editCancelled.emit();
+    this.cancelled.emit();
   }
 }

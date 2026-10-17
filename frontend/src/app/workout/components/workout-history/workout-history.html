@@ -26,11 +26,11 @@
     }
 
     @if (workout.id != null) {
-    <button type="button" class="edit-button" (click)="editWorkout(workout)">
+    <button type="button" class="edit-button" [disabled]="actionsDisabled()" (click)="editWorkout(workout)">
       Editar
     </button>
 
-    <button type="button" class="delete-button" (click)="deleteWorkout(workout.id)">
+    <button type="button" class="delete-button" [disabled]="actionsDisabled()" (click)="deleteWorkout(workout.id)">
       Eliminar
     </button>
     }

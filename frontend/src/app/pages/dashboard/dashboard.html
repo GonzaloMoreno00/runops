@@ -12,7 +12,15 @@
 
 <main class="dashboard-content">
 
-  <h1>Mis entrenamientos</h1>
+  <div class="dashboard-title-row">
+    <h1>Mis entrenamientos</h1>
+    <button id="add-workout-button" class="add-workout-button" type="button"
+      [attr.aria-expanded]="formVisible()" aria-controls="workout-form-section"
+      [disabled]="(formVisible() && !editingWorkout()) || workoutForm()?.saving()"
+      (click)="addWorkout()">
+      + Añadir entrenamiento
+    </button>
+  </div>
 
   @if (successMessage()) {
   <p class="success-message" role="status">
@@ -94,14 +102,17 @@
     </p>
   </section>
 
+  @if (formVisible()) {
   <section id="workout-form-section">
 
     <app-workout-form [workoutToEdit]="editingWorkout()" (workoutCreated)="onWorkoutCreated()"
-      (workoutUpdated)="onWorkoutUpdated()" (editCancelled)="editingWorkout.set(null)" />
+      (workoutUpdated)="onWorkoutUpdated()" (cancelled)="closeWorkoutForm()" />
 
   </section>
+  }
 
   <app-workout-history [workouts]="workouts()" [loading]="loading()" [errorMessage]="errorMessage()"
+    [actionsDisabled]="workoutForm()?.saving() ?? false"
     emptyMessage="No hay entrenamientos registrados en este mes." (workoutDeleted)="deleteWorkout($event)"
     (workoutEdited)="editWorkout($event)" />
 </main>

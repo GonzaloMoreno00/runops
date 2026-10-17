@@ -13,6 +13,7 @@ export class WorkoutHistory {
 
   workouts = input<Workout[]>([]);
   loading = input(false);
+  actionsDisabled = input(false);
   errorMessage = input('');
   emptyMessage = input('Todavía no hay entrenamientos registrados.');
 

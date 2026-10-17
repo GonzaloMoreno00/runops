@@ -80,22 +80,16 @@
       }
     </button>
 
-    @if (workoutToEdit()) {
-      <button
-        type="button"
-        class="cancel-button"
-        (click)="cancelEdit()"
-      >
-        Cancelar edición
-      </button>
-    }
+    <button
+      type="button"
+      class="cancel-button"
+      (click)="cancel()"
+    >
+      Cancelar
+    </button>
   </fieldset>
 </form>
 
 @if (errorMessage()) {
   <p role="alert">{{ errorMessage() }}</p>
-}
-
-@if (successMessage()) {
-  <p role="status">{{ successMessage() }}</p>
 }
