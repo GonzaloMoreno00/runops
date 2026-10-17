@@ -125,11 +125,6 @@ describe('WorkoutForm', () => {
     expect(component.saving()).toBe(false);
     expect(onWorkoutCreated).toHaveBeenCalledTimes(1);
 
-    const compiled = fixture.nativeElement as HTMLElement;
-
-    expect(compiled.querySelector('[role="status"]')?.textContent).toContain(
-      'Entrenamiento guardado correctamente.'
-    );
   });
 
   it('should preserve the form and show an error when saving fails', async () => {

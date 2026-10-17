@@ -22,12 +22,16 @@ describe('Dashboard monthly summary and history', () => {
   };
 
   const workoutServiceMock = {
+    createWorkout: vi.fn<WorkoutService['createWorkout']>(),
+    updateWorkout: vi.fn<WorkoutService['updateWorkout']>(),
     getMonthlyWorkouts: vi.fn<WorkoutService['getMonthlyWorkouts']>(),
     getMonthlySummary: vi.fn<WorkoutService['getMonthlySummary']>(),
     deleteWorkout: vi.fn<WorkoutService['deleteWorkout']>()
   };
 
   beforeEach(async () => {
+    workoutServiceMock.createWorkout.mockReset();
+    workoutServiceMock.updateWorkout.mockReset();
     workoutServiceMock.getMonthlyWorkouts.mockReset();
     workoutServiceMock.getMonthlySummary.mockReset();
     workoutServiceMock.deleteWorkout.mockReset();
@@ -57,6 +61,90 @@ describe('Dashboard monthly summary and history', () => {
   function summaryElement(): HTMLElement {
     return fixture.nativeElement.querySelector('.monthly-summary');
   }
+
+  it('should open a blank form, focus the date, and discard cancelled input', async () => {
+    expect(fixture.nativeElement.querySelector('app-workout-form')).toBeNull();
+    const addButton: HTMLButtonElement = fixture.nativeElement.querySelector('#add-workout-button');
+    addButton.click();
+    await fixture.whenStable();
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(component.workoutForm()?.form.controls.date.value).toBe('');
+    expect(document.activeElement?.id).toBe('date');
+    component.workoutForm()!.form.controls.notes.setValue('Unsaved draft');
+    fixture.nativeElement.querySelector('.cancel-button').click();
+    await fixture.whenStable();
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(fixture.nativeElement.querySelector('app-workout-form')).toBeNull();
+    expect(document.activeElement).toBe(addButton);
+    addButton.click();
+    await fixture.whenStable();
+    expect(component.workoutForm()?.form.controls.notes.value).toBe('');
+  });
+
+  it.each(['create', 'update'] as const)(
+    'should close the form after %s and keep confirmation in the dashboard',
+    async operation => {
+      const saved: Workout = {
+        id: 1, date: '2026-10-10', distanceKm: 5, durationSeconds: 1500,
+        averagePaceSecondsPerKm: 300, notes: 'Rodaje de prueba'
+      };
+      workoutServiceMock.createWorkout.mockReturnValueOnce(of(saved));
+      workoutServiceMock.updateWorkout.mockReturnValueOnce(of(saved));
+
+      if (operation === 'create') {
+        fixture.nativeElement.querySelector('#add-workout-button').click();
+      } else {
+        fixture.nativeElement.querySelector('.edit-button').click();
+      }
+      await fixture.whenStable();
+
+      const form = component.workoutForm()!;
+      if (operation === 'update') {
+        expect(form.form.controls.date.value).toBe(saved.date);
+        expect(form.form.controls.durationMinutes.value).toBe(25);
+      }
+      form.form.setValue({
+        date: saved.date, distanceKm: 5, durationMinutes: 25, notes: saved.notes!
+      });
+      workoutServiceMock.getMonthlyWorkouts.mockClear();
+      workoutServiceMock.getMonthlySummary.mockClear();
+      fixture.nativeElement.querySelector('app-workout-form form')
+        .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      await fixture.whenStable();
+
+      expect(fixture.nativeElement.querySelector('app-workout-form')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.success-message')?.textContent)
+        .toContain(operation === 'create'
+          ? 'Entrenamiento guardado correctamente.'
+          : 'Entrenamiento actualizado correctamente.');
+      expect(workoutServiceMock.getMonthlyWorkouts).toHaveBeenCalledExactlyOnceWith(2026, 10);
+      expect(workoutServiceMock.getMonthlySummary).toHaveBeenCalledExactlyOnceWith(2026, 10);
+    }
+  );
+
+  it('should keep the form and entered values after a failed save', async () => {
+    const response = new Subject<Workout>();
+    workoutServiceMock.createWorkout.mockReturnValueOnce(response);
+    fixture.nativeElement.querySelector('#add-workout-button').click();
+    await fixture.whenStable();
+    const values = { date: '2026-10-10', distanceKm: 5, durationMinutes: 25, notes: 'Keep me' };
+    component.workoutForm()!.form.setValue(values);
+    component.workoutForm()!.submit();
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('fieldset').disabled).toBe(true);
+    expect(fixture.nativeElement.querySelector('.edit-button').disabled).toBe(true);
+    response.error(new Error('Network error'));
+    await fixture.whenStable();
+
+    expect(component.formVisible()).toBe(true);
+    expect(component.workoutForm()!.form.getRawValue()).toEqual(values);
+    expect(fixture.nativeElement.querySelector('app-workout-form [role="alert"]').textContent)
+      .toContain('No se pudo guardar el entrenamiento.');
+    expect(fixture.nativeElement.querySelector('fieldset').disabled).toBe(false);
+  });
 
   async function selectMonth(value: string): Promise<void> {
     const input: HTMLInputElement = fixture.nativeElement.querySelector('#summary-month');

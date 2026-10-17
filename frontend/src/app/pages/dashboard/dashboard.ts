@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import { DecimalPipe } from '@angular/common';
@@ -25,6 +25,8 @@ export class Dashboard implements OnInit, OnDestroy {
   successMessage = signal('');
   deleteErrorMessage = signal('');
   editingWorkout = signal<Workout | null>(null);
+  formVisible = signal(false);
+  workoutForm = viewChild(WorkoutForm);
 
   selectedMonth = signal(this.getCurrentMonth());
 
@@ -37,6 +39,7 @@ export class Dashboard implements OnInit, OnDestroy {
 
   private summarySubscription?: Subscription;
   private workoutsSubscription?: Subscription;
+  private focusTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     private workoutService: WorkoutService,
@@ -85,6 +88,9 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   deleteWorkout(id: number): void {
+    if (this.workoutForm()?.saving()) {
+      return;
+    }
 
     this.deleteErrorMessage.set('');
     this.successMessage.set('');
@@ -93,7 +99,7 @@ export class Dashboard implements OnInit, OnDestroy {
       next: () => {
 
         if (this.editingWorkout()?.id === id) {
-          this.editingWorkout.set(null);
+          this.closeWorkoutForm();
         }
 
         this.successMessage.set(
@@ -111,16 +117,43 @@ export class Dashboard implements OnInit, OnDestroy {
     });
   }
 
-  editWorkout(workout: Workout): void {
-    this.editingWorkout.set(workout);
+  addWorkout(): void {
+    if (this.workoutForm()?.saving()) {
+      return;
+    }
 
-    setTimeout(() => {
-      document
-        .getElementById('workout-form-section')
-        ?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
+    this.editingWorkout.set(null);
+    this.openWorkoutForm();
+  }
+
+  editWorkout(workout: Workout): void {
+    if (this.workoutForm()?.saving()) {
+      return;
+    }
+
+    this.editingWorkout.set(workout);
+    this.openWorkoutForm();
+  }
+
+  private openWorkoutForm(): void {
+    this.successMessage.set('');
+    this.deleteErrorMessage.set('');
+    this.formVisible.set(true);
+    this.scheduleFocus('date');
+  }
+
+  closeWorkoutForm(): void {
+    this.formVisible.set(false);
+    this.editingWorkout.set(null);
+    this.scheduleFocus('add-workout-button');
+  }
+
+  private scheduleFocus(id: string): void {
+    clearTimeout(this.focusTimer);
+    this.focusTimer = setTimeout(() => {
+      const element = document.getElementById(id);
+      element?.focus({ preventScroll: true });
+      element?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
     });
   }
 
@@ -148,13 +181,15 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   onWorkoutCreated(): void {
-    this.editingWorkout.set(null);
+    this.closeWorkoutForm();
+    this.successMessage.set('Entrenamiento guardado correctamente.');
     this.loadWorkouts();
     this.loadMonthlySummary();
   }
 
   onWorkoutUpdated(): void {
-    this.editingWorkout.set(null);
+    this.closeWorkoutForm();
+    this.successMessage.set('Entrenamiento actualizado correctamente.');
     this.loadWorkouts();
     this.loadMonthlySummary();
   }
@@ -235,6 +270,7 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    clearTimeout(this.focusTimer);
     this.summarySubscription?.unsubscribe();
     this.workoutsSubscription?.unsubscribe();
   }

@@ -55,8 +55,42 @@
   padding: 48px 0 64px;
 }
 
-.dashboard-content > h1 {
-  margin: 0 0 32px;
+.dashboard-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.add-workout-button {
+  padding: 13px 18px;
+  border: 1px solid #ff8c42;
+  border-radius: 8px;
+  background: #ff8c42;
+  color: #111111;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.add-workout-button:hover:not(:disabled) {
+  background: #ffa05c;
+}
+
+.add-workout-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.add-workout-button:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.dashboard-title-row h1 {
+  margin: 0;
   color: #ffffff;
   font-size: clamp(2rem, 4vw, 2.7rem);
   line-height: 1.1;
