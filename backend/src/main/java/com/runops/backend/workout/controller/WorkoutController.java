@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.runops.backend.user.model.User;
 import com.runops.backend.user.repository.UserRepository;
@@ -53,11 +54,23 @@ public class WorkoutController {
     }
 
     @GetMapping
-    public ResponseEntity<List<WorkoutResponse>> getAllWorkouts(Authentication authentication) {
+    public ResponseEntity<List<WorkoutResponse>> getAllWorkouts(
+            Authentication authentication,
+            @RequestParam(name = "year", required = false) Integer year,
+            @RequestParam(name = "month", required = false) Integer month) {
+        if ((year == null) != (month == null)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Year and month must be provided together");
+        }
 
         User user = getAuthenticatedUser(authentication);
 
-        return ResponseEntity.ok(workoutService.getAllWorkouts(user));
+        if (year == null) {
+            return ResponseEntity.ok(workoutService.getAllWorkouts(user));
+        }
+
+        return ResponseEntity.ok(workoutService.getMonthlyWorkouts(year, month, user));
     }
 
     @GetMapping("/{id}")

@@ -6,8 +6,9 @@ import { vi } from 'vitest';
 import { AuthService } from '../../auth/service/auth.service';
 import { WorkoutService } from '../../workout/service/WorkoutService';
 import { MonthlyWorkoutSummary } from '../../workout/model/monthly-workout-summary';
+import { Workout } from '../../workout/model/workout';
 
-describe('Dashboard monthly summary', () => {
+describe('Dashboard monthly summary and history', () => {
   let component: Dashboard;
   let fixture: ComponentFixture<Dashboard>;
 
@@ -21,16 +22,16 @@ describe('Dashboard monthly summary', () => {
   };
 
   const workoutServiceMock = {
-    getAllWorkouts: vi.fn<WorkoutService['getAllWorkouts']>(),
+    getMonthlyWorkouts: vi.fn<WorkoutService['getMonthlyWorkouts']>(),
     getMonthlySummary: vi.fn<WorkoutService['getMonthlySummary']>(),
     deleteWorkout: vi.fn<WorkoutService['deleteWorkout']>()
   };
 
   beforeEach(async () => {
-    workoutServiceMock.getAllWorkouts.mockReset();
+    workoutServiceMock.getMonthlyWorkouts.mockReset();
     workoutServiceMock.getMonthlySummary.mockReset();
     workoutServiceMock.deleteWorkout.mockReset();
-    workoutServiceMock.getAllWorkouts.mockReturnValue(of([{
+    workoutServiceMock.getMonthlyWorkouts.mockReturnValue(of([{
       id: 1, date: '2026-10-10', distanceKm: 5, durationSeconds: 1500,
       averagePaceSecondsPerKm: 300, notes: 'Rodaje de prueba'
     }]));
@@ -65,6 +66,7 @@ describe('Dashboard monthly summary', () => {
   }
 
   it('should load the selected month and display all four formatted totals', () => {
+    expect(workoutServiceMock.getMonthlyWorkouts).toHaveBeenCalledExactlyOnceWith(2026, 10);
     expect(workoutServiceMock.getMonthlySummary).toHaveBeenCalledExactlyOnceWith(2026, 10);
     const totals = Array.from(summaryElement().querySelectorAll('dd'))
       .map(element => element.textContent?.trim());
@@ -136,10 +138,16 @@ describe('Dashboard monthly summary', () => {
       .toContain('Tu sesión ha caducado. Vuelve a iniciar sesión.');
   });
 
-  it('should not request a summary when the month input is cleared', async () => {
+  it('should not request summary or history when the month input is cleared', async () => {
     workoutServiceMock.getMonthlySummary.mockClear();
+    workoutServiceMock.getMonthlyWorkouts.mockClear();
     await selectMonth('');
     expect(workoutServiceMock.getMonthlySummary).not.toHaveBeenCalled();
+    expect(workoutServiceMock.getMonthlyWorkouts).not.toHaveBeenCalled();
+    expect(component.workouts()).toEqual([]);
+    expect(component.loading()).toBe(false);
+    expect(fixture.nativeElement.querySelector('app-workout-history').textContent)
+      .toContain('Selecciona un mes válido para ver los entrenamientos.');
     expect(summaryElement().textContent).toContain('Selecciona un mes válido.');
     expect(summaryElement().querySelector('.summary-grid')).toBeNull();
   });
@@ -181,11 +189,14 @@ describe('Dashboard monthly summary', () => {
   });
 
   it.each(['create', 'update', 'delete'] as const)(
-    'should refresh the selected summary after a successful %s',
+    'should refresh summary and history for the selected month after a successful %s',
     async (operation) => {
+      await selectMonth('2026-09');
       workoutServiceMock.getMonthlySummary.mockClear();
+      workoutServiceMock.getMonthlyWorkouts.mockClear();
+      workoutServiceMock.getMonthlyWorkouts.mockReturnValueOnce(of([]));
       workoutServiceMock.getMonthlySummary.mockReturnValueOnce(of({
-        ...summary, totalDistanceKm: 25
+        ...summary, month: 9, totalDistanceKm: 25
       }));
 
       if (operation === 'create') {
@@ -197,13 +208,16 @@ describe('Dashboard monthly summary', () => {
       }
       await fixture.whenStable();
 
-      expect(workoutServiceMock.getMonthlySummary).toHaveBeenCalledExactlyOnceWith(2026, 10);
+      expect(workoutServiceMock.getMonthlySummary).toHaveBeenCalledExactlyOnceWith(2026, 9);
+      expect(workoutServiceMock.getMonthlyWorkouts).toHaveBeenCalledExactlyOnceWith(2026, 9);
+      expect(component.workouts()).toEqual([]);
       expect(summaryElement().textContent).toContain('25 km');
     }
   );
 
   it('should preserve the summary when deleting fails', async () => {
     workoutServiceMock.getMonthlySummary.mockClear();
+    workoutServiceMock.getMonthlyWorkouts.mockClear();
     workoutServiceMock.deleteWorkout.mockReturnValueOnce(
       throwError(() => ({ status: 500 }))
     );
@@ -211,7 +225,89 @@ describe('Dashboard monthly summary', () => {
     await fixture.whenStable();
 
     expect(workoutServiceMock.getMonthlySummary).not.toHaveBeenCalled();
+    expect(workoutServiceMock.getMonthlyWorkouts).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('app-workout-history').textContent)
+      .toContain('Rodaje de prueba');
     expect(component.monthlySummary()).toEqual(summary);
     expect(component.deleteErrorMessage()).toContain('No se pudo eliminar');
+  });
+
+  it('should request both sections for the same month and display the monthly empty message', async () => {
+    workoutServiceMock.getMonthlyWorkouts.mockClear();
+    workoutServiceMock.getMonthlySummary.mockClear();
+    workoutServiceMock.getMonthlyWorkouts.mockReturnValueOnce(of([]));
+    workoutServiceMock.getMonthlySummary.mockReturnValueOnce(of({
+      ...summary, month: 9, workoutCount: 0, totalDistanceKm: 0,
+      totalDurationSeconds: 0, averagePaceSecondsPerKm: null
+    }));
+
+    await selectMonth('2026-09');
+
+    expect(workoutServiceMock.getMonthlyWorkouts).toHaveBeenCalledExactlyOnceWith(2026, 9);
+    expect(workoutServiceMock.getMonthlySummary).toHaveBeenCalledExactlyOnceWith(2026, 9);
+    expect(fixture.nativeElement.querySelector('app-workout-history').textContent)
+      .toContain('No hay entrenamientos registrados en este mes.');
+  });
+
+  it('should hide previous workouts while loading and ignore late history responses', async () => {
+    const septemberResponse = new Subject<Workout[]>();
+    const augustResponse = new Subject<Workout[]>();
+    workoutServiceMock.getMonthlyWorkouts
+      .mockReturnValueOnce(septemberResponse)
+      .mockReturnValueOnce(augustResponse);
+
+    await selectMonth('2026-09');
+
+    const history: HTMLElement = fixture.nativeElement.querySelector('app-workout-history');
+    expect(history.textContent).toContain('Cargando entrenamientos...');
+    expect(history.textContent).not.toContain('Rodaje de prueba');
+
+    await selectMonth('2026-08');
+    augustResponse.next([]);
+    augustResponse.complete();
+    septemberResponse.next([{
+      id: 99, date: '2026-09-10', distanceKm: 5, durationSeconds: 1500,
+      averagePaceSecondsPerKm: 300, notes: 'Respuesta antigua de septiembre'
+    }]);
+    septemberResponse.complete();
+    await fixture.whenStable();
+
+    expect(component.workouts()).toEqual([]);
+    expect(component.loading()).toBe(false);
+    expect(history.textContent).not.toContain('Respuesta antigua de septiembre');
+    expect(history.textContent).toContain('No hay entrenamientos registrados en este mes.');
+  });
+
+  it.each([
+    [500, 'No se pudieron cargar los entrenamientos.'],
+    [401, 'Tu sesión ha caducado. Vuelve a iniciar sesión.']
+  ] as const)('should display a history error for HTTP %s without hiding the summary', async (status, message) => {
+    workoutServiceMock.getMonthlyWorkouts.mockReturnValueOnce(
+      throwError(() => ({ status }))
+    );
+    workoutServiceMock.getMonthlySummary.mockReturnValueOnce(of({ ...summary, month: 9 }));
+
+    await selectMonth('2026-09');
+
+    const history: HTMLElement = fixture.nativeElement.querySelector('app-workout-history');
+    expect(history.querySelector('[role="alert"]')?.textContent).toContain(message);
+    expect(history.textContent).not.toContain('Rodaje de prueba');
+    expect(component.loading()).toBe(false);
+    expect(summaryElement().textContent).toContain('15 km');
+    expect(component.summaryError()).toBe('');
+  });
+
+  it('should cancel pending history when the dashboard is destroyed', async () => {
+    const cancelRequest = vi.fn();
+    workoutServiceMock.getMonthlyWorkouts.mockReturnValueOnce(
+      new Observable<Workout[]>(() => cancelRequest)
+    );
+
+    await selectMonth('2026-09');
+    expect(cancelRequest).not.toHaveBeenCalled();
+
+    fixture.destroy();
+
+    expect(cancelRequest).toHaveBeenCalledTimes(1);
   });
 });

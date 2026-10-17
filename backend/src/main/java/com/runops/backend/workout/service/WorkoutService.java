@@ -98,19 +98,14 @@ public class WorkoutService {
 
         @Transactional(readOnly = true)
         public MonthlyWorkoutSummaryResponse getMonthlySummary(int year, int month, User user) {
-                if (year < 1 || year > 9999 || month < 1 || month > 12) {
-                        throw new ResponseStatusException(
-                                        HttpStatus.BAD_REQUEST,
-                                        "Year must be between 1 and 9999 and month between 1 and 12");
-                }
-
-                YearMonth requestedMonth = YearMonth.of(year, month);
+                YearMonth requestedMonth = validateMonth(year, month);
 
                 LocalDate startDate = requestedMonth.atDay(1);
                 LocalDate endDate = requestedMonth.plusMonths(1).atDay(1);
 
                 List<Workout> workouts = workoutRepository
-                                .findAllByUserIdAndDateGreaterThanEqualAndDateLessThan(user.getId(), startDate, endDate);
+                                .findAllByUserIdAndDateGreaterThanEqualAndDateLessThan(user.getId(), startDate,
+                                                endDate);
 
                 double totalDistanceKm = 0;
                 long totalDurationSeconds = 0;
@@ -126,13 +121,25 @@ public class WorkoutService {
                         averagePaceSecondsPerKm = Math.toIntExact(Math.round(totalDurationSeconds / totalDistanceKm));
                 }
 
-                return new MonthlyWorkoutSummaryResponse(
-                                year,
-                                month,
-                                workouts.size(),
-                                totalDistanceKm,
-                                totalDurationSeconds,
-                                averagePaceSecondsPerKm);
+                return new MonthlyWorkoutSummaryResponse(year, month, workouts.size(),
+                                totalDistanceKm, totalDurationSeconds, averagePaceSecondsPerKm);
+        }
+
+        @Transactional(readOnly = true)
+        public List<WorkoutResponse> getMonthlyWorkouts(int year, int month, User user) {
+                YearMonth requestedMonth = validateMonth(year, month);
+
+                LocalDate startDate = requestedMonth.atDay(1);
+                LocalDate endDate = requestedMonth.plusMonths(1).atDay(1);
+
+                return workoutRepository
+                                .findAllByUserIdAndDateGreaterThanEqualAndDateLessThanOrderByDateDescIdDesc(
+                                                user.getId(),
+                                                startDate,
+                                                endDate)
+                                .stream()
+                                .map(this::toResponse)
+                                .toList();
         }
 
         private int calculateAveragePace(double distanceKm, int durationSeconds) {
@@ -149,6 +156,16 @@ public class WorkoutService {
                 }
 
                 return (int) Math.round(calculatedPace);
+        }
+
+        private YearMonth validateMonth(int year, int month) {
+                if (year < 1 || year > 9999 || month < 1 || month > 12) {
+                        throw new ResponseStatusException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "Year must be between 1 and 9999 and month between 1 and 12");
+                }
+
+                return YearMonth.of(year, month);
         }
 
         private WorkoutResponse toResponse(Workout workout) {

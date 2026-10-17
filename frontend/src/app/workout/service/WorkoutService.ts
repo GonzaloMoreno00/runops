@@ -115,4 +115,20 @@ export class WorkoutService {
       }
     );
   }
+
+  getMonthlyWorkouts(
+    year: number,
+    month: number
+  ): Observable<Workout[]> {
+    return this.http.get<Workout[]>(
+      this.apiUrl,
+      {
+        params: {
+          year,
+          month
+        },
+        withCredentials: true
+      }
+    );
+  }
 }

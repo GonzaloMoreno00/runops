@@ -36,6 +36,7 @@ export class Dashboard implements OnInit, OnDestroy {
   logoutError = signal('');
 
   private summarySubscription?: Subscription;
+  private workoutsSubscription?: Subscription;
 
   constructor(
     private workoutService: WorkoutService,
@@ -49,21 +50,38 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   loadWorkouts(): void {
-    this.loading.set(true);
-    this.errorMessage.set('');
+    this.workoutsSubscription?.unsubscribe();
 
-    this.workoutService.getAllWorkouts().subscribe({
-      next: (workouts) => {
-        this.workouts.set(workouts);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.errorMessage.set(
-          'No se pudieron cargar los entrenamientos. Inténtalo de nuevo más tarde.'
-        );
-        this.loading.set(false);
-      }
-    });
+    this.workouts.set([]);
+    this.errorMessage.set('');
+    this.loading.set(false);
+
+    const period = this.getSelectedPeriod();
+
+    if (!period) {
+      this.errorMessage.set('Selecciona un mes válido para ver los entrenamientos.');
+      return;
+    }
+
+    this.loading.set(true);
+
+    this.workoutsSubscription = this.workoutService
+      .getMonthlyWorkouts(period.year, period.month)
+      .subscribe({
+        next: (workouts) => {
+          this.workouts.set(workouts);
+          this.loading.set(false);
+        },
+        error: (error) => {
+          this.loading.set(false);
+
+          this.errorMessage.set(
+            error.status === 401
+              ? 'Tu sesión ha caducado. Vuelve a iniciar sesión.'
+              : 'No se pudieron cargar los entrenamientos. Inténtalo de nuevo más tarde.'
+          );
+        }
+      });
   }
 
   deleteWorkout(id: number): void {
@@ -152,6 +170,11 @@ export class Dashboard implements OnInit, OnDestroy {
 
   onMonthChange(value: string): void {
     this.selectedMonth.set(value);
+
+    this.successMessage.set('');
+    this.deleteErrorMessage.set('');
+
+    this.loadWorkouts();
     this.loadMonthlySummary();
   }
 
@@ -162,19 +185,14 @@ export class Dashboard implements OnInit, OnDestroy {
     this.summaryError.set('');
     this.summaryLoading.set(false);
 
-    const selectedMonth = this.selectedMonth();
+    const period = this.getSelectedPeriod();
 
-    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(selectedMonth)) {
+    if (!period) {
       this.summaryError.set('Selecciona un mes válido.');
       return;
     }
 
-    const [year, month] = selectedMonth.split('-').map(Number);
-
-    if (year < 1 || year > 9999) {
-      this.summaryError.set('El año debe estar entre 1 y 9999.');
-      return;
-    }
+    const { year, month } = period;
 
     this.summaryLoading.set(true);
 
@@ -218,5 +236,22 @@ export class Dashboard implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.summarySubscription?.unsubscribe();
+    this.workoutsSubscription?.unsubscribe();
+  }
+
+  private getSelectedPeriod(): { year: number; month: number } | null {
+    const value = this.selectedMonth();
+
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(value)) {
+      return null;
+    }
+
+    const [year, month] = value.split('-').map(Number);
+
+    if (year < 1 || year > 9999) {
+      return null;
+    }
+
+    return { year, month };
   }
 }
