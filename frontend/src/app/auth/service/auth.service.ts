@@ -20,7 +20,7 @@ export class AuthService {
 
   private readonly http = inject(HttpClient);
 
-  private readonly apiUrl = 'http://localhost:8080/api/auth';
+  private readonly apiUrl = '/api/auth';
 
   register(request: RegisterRequest): Observable<AuthUser> {
     return this.http.post<AuthUser>(

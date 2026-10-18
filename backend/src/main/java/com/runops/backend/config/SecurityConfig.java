@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -66,14 +67,11 @@ public class SecurityConfig {
                     "/error"
                 ).permitAll()
 
-                // Workout endpoints require an authenticated user.
-                .requestMatchers(
-                    "/api/workouts",
-                    "/api/workouts/**"
-                ).authenticated()
-
-                // All remaining endpoints also require authentication.
-                .anyRequest().authenticated()
+                // Protect the API before allowing downloads of the Angular application.
+                .requestMatchers("/api", "/api/**").authenticated()
+                .requestMatchers(HttpMethod.GET, "/**").permitAll()
+                .requestMatchers(HttpMethod.HEAD, "/**").permitAll()
+                .anyRequest().denyAll()
             )
 
             .formLogin(form -> form.disable())
