@@ -15,8 +15,8 @@ interface CsrfResponse {
 })
 export class WorkoutService {
 
-  private readonly apiUrl = 'http://localhost:8080/api/workouts';
-  private readonly authUrl = 'http://localhost:8080/api/auth';
+  private readonly apiUrl = '/api/workouts';
+  private readonly authUrl = '/api/auth';
 
   constructor(private http: HttpClient) {
   }
