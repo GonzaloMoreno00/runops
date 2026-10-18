@@ -14,6 +14,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.runops.backend.user.model.Role;
@@ -25,7 +26,8 @@ import com.runops.backend.workout.service.WorkoutService;
 
 // Real controller, service and JPA queries; isolated, in-memory test database.
 // Authentication is supplied explicitly: this class does not test security filters.
-@DataJpaTest
+@DataJpaTest(showSql = false)
+@ActiveProfiles("test")
 @Import(WorkoutService.class)
 class WorkoutMonthlyHistoryTest {
 
