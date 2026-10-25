@@ -1,106 +1,39 @@
-:host {
-  display: block;
+:host { display: block; border-top: 1px solid var(--muted); padding-top: 36px; }
+* { box-sizing: border-box; }
+h2 { margin: 0 0 28px; font-size: 24px; font-weight: 500; letter-spacing: -.5px; }
+ul { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+li { padding: 32px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.workout-row { display: grid; grid-template-columns: 120px minmax(0, 1fr) auto; gap: 28px; align-items: start; }
+p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+.workout-row p { margin: 0; font-variant-numeric: tabular-nums; }
+.workout-row .workout-date { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; color: var(--ink); }
+.date-day { font-size: 64px; line-height: .95; font-weight: 600; letter-spacing: -.055em; }
+.date-month-year { display: flex; align-items: baseline; gap: 7px; line-height: 1.3; }
+.date-month { font-size: 17px; font-weight: 600; letter-spacing: .03em; }
+.date-year { color: var(--muted); font-size: 14px; }
+.workout-body { min-width: 0; }
+.workout-metrics { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 24px; }
+.workout-metrics p { color: var(--ink); font-size: 16px; }
+.workout-metrics .distance-line { font-size: 32px; font-weight: 600; letter-spacing: -.04em; line-height: 1.2; }
+.duration-line { display: flex; flex-direction: column; gap: 2px; }
+.metric-context { color: var(--muted); font-size: 14px; }
+.workout-row .workout-notes { margin-top: 14px; max-width: 620px; color: var(--muted); font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+.workout-actions { display: flex; gap: 8px; align-self: end; }
+button { min-height: 44px; padding: 10px 12px; border: 1px solid transparent; background: transparent; color: var(--ink); font: inherit; font-size: 14px; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--line); background: #e9e9e1; }
+.delete-button { color: var(--error); }
+button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+p[role="alert"] { padding: 12px 16px; border-left: 2px solid var(--error); color: var(--error); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 900px) {
+  .workout-row { grid-template-columns: 110px minmax(0, 1fr); gap: 16px 24px; }
+  .workout-actions { grid-column: 2; justify-content: flex-end; }
 }
-
-h2 {
-  margin: 0 0 20px;
-  color: #ffffff;
-  font-size: 1.5rem;
-}
-
-ul {
-  display: grid;
-  gap: 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-li {
-  padding: 22px;
-  border: 1px solid #333333;
-  border-radius: 12px;
-  background-color: #1b1b1b;
-  color: #e8e8e8;
-  overflow-wrap: anywhere;
-  transition:
-    border-color 0.2s,
-    transform 0.2s;
-}
-
-li:hover {
-  border-color: #4a4a4a;
-  transform: translateY(-1px);
-}
-
-li p {
-  margin: 0 0 10px;
-  color: #d0d0d0;
-  line-height: 1.5;
-}
-
-li p:first-child {
-  color: #ffffff;
-  font-weight: 700;
-}
-
-li p:last-child {
-  margin-bottom: 0;
-}
-
-p {
-  color: #bdbdbd;
-}
-
-p[role="alert"] {
-  padding: 16px;
-  border: 1px solid #6d3630;
-  border-radius: 8px;
-  background-color: #2a1816;
-  color: #ff9b87;
-}
-
-.delete-button {
-  margin-top: 8px;
-  padding: 10px 14px;
-  border: 1px solid #a94442;
-  border-radius: 8px;
-  background-color: transparent;
-  color: #ff8f87;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    background-color 0.2s,
-    color 0.2s,
-    transform 0.2s;
-}
-
-.delete-button:hover {
-  background-color: #a94442;
-  color: #ffffff;
-  transform: translateY(-1px);
-}
-
-.edit-button {
-  margin-top: 8px;
-  margin-right: 10px;
-  padding: 10px 14px;
-  border: 1px solid #ff8c42;
-  border-radius: 8px;
-  background-color: transparent;
-  color: #ff8c42;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    background-color 0.2s,
-    color 0.2s,
-    transform 0.2s;
-}
-
-.edit-button:hover {
-  background-color: #ff8c42;
-  color: #111111;
-  transform: translateY(-1px);
+@media (max-width: 550px) {
+  .workout-row { grid-template-columns: 1fr; gap: 16px; }
+  .date-day { font-size: 52px; }
+  .workout-metrics { gap: 8px 20px; }
+  .distance-line { flex-basis: 100%; }
+  .workout-actions { grid-column: 1; justify-content: flex-end; }
 }

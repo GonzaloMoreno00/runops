@@ -1,42 +1,73 @@
 <h2>Entrenamientos</h2>
 
 @if (loading()) {
-<p>Cargando entrenamientos...</p>
+  <p role="status">Cargando entrenamientos...</p>
 } @else if (errorMessage()) {
-<p role="alert">{{ errorMessage() }}</p>
+  <p role="alert">{{ errorMessage() }}</p>
 } @else {
-<ul>
-  @for (workout of workouts(); track workout.id) {
-  <li>
-    <p>Fecha: {{ workout.date | date:'dd/MM/yyyy' }}</p>
-    <p>Distancia: {{ workout.distanceKm }} km</p>
-    <p>Duración: {{ formatSeconds(workout.durationSeconds) }}</p>
+  <ul>
+    @for (workout of workouts(); track workout.id) {
+      <li class="workout-row">
+        <p class="workout-date">
+          <span class="sr-only">Fecha: {{ workout.date | date: 'dd/MM/yyyy' }}</span>
+          <span class="date-day" aria-hidden="true">{{ workout.date | date: 'dd' }}</span>
+          <span class="date-month-year" aria-hidden="true">
+            <span class="date-month">{{ ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'][+(workout.date | date: 'M')! - 1] }}</span>
+            <span class="date-year">{{ workout.date | date: 'yyyy' }}</span>
+          </span>
+        </p>
+        <div class="workout-body">
+          <div class="workout-metrics">
+            <p class="distance-line">
+              <span class="sr-only">Distancia: </span
+              ><span class="workout-distance">{{ workout.distanceKm }} km</span>
+            </p>
+            <p class="duration-line">
+              <span>{{ formatSeconds(workout.durationSeconds) }}</span>
+              <span class="metric-context">Duración</span>
+            </p>
 
-    @if (workout.averagePaceSecondsPerKm != null) {
-    <p>
-      Ritmo medio:
-      {{ formatSeconds(workout.averagePaceSecondsPerKm) }} min/km
-    </p>
-    } @else {
-    <p>Ritmo medio: Sin calcular</p>
+            @if (workout.averagePaceSecondsPerKm != null) {
+              <p>
+                <span class="sr-only">Ritmo medio: </span
+                ><span>{{ formatSeconds(workout.averagePaceSecondsPerKm) }} min/km</span>
+              </p>
+            } @else {
+              <p><span>Ritmo medio: Sin calcular</span></p>
+            }
+          </div>
+
+          @if (workout.notes) {
+            <p class="workout-notes">
+              <span class="sr-only">Notas: </span><span>{{ workout.notes }}</span>
+            </p>
+          }
+        </div>
+
+        @if (workout.id != null) {
+          <div class="workout-actions">
+            <button
+              type="button"
+              class="edit-button"
+              [disabled]="actionsDisabled()"
+              (click)="editWorkout(workout)"
+            >
+              Editar
+            </button>
+
+            <button
+              type="button"
+              class="delete-button"
+              [disabled]="actionsDisabled()"
+              (click)="deleteWorkout(workout.id)"
+            >
+              Eliminar
+            </button>
+          </div>
+        }
+      </li>
+    } @empty {
+      <li class="empty-row">{{ emptyMessage() }}</li>
     }
-
-    @if (workout.notes) {
-    <p>Notas: {{ workout.notes }}</p>
-    }
-
-    @if (workout.id != null) {
-    <button type="button" class="edit-button" [disabled]="actionsDisabled()" (click)="editWorkout(workout)">
-      Editar
-    </button>
-
-    <button type="button" class="delete-button" [disabled]="actionsDisabled()" (click)="deleteWorkout(workout.id)">
-      Eliminar
-    </button>
-    }
-  </li>
-  } @empty {
-  <li>{{ emptyMessage() }}</li>
-  }
-</ul>
+  </ul>
 }

@@ -58,7 +58,7 @@
       }
     </div>
 
-    <div>
+    <div class="notes-field">
       <label for="notes">Notas (opcional)</label>
       <textarea
         id="notes"
@@ -72,21 +72,23 @@
       }
     </div>
 
-    <button type="submit" [disabled]="saving()">
-      @if (saving()) {
-        {{ workoutToEdit() ? 'Actualizando...' : 'Guardando...' }}
-      } @else {
-        {{ workoutToEdit() ? 'Actualizar entrenamiento' : 'Guardar entrenamiento' }}
-      }
-    </button>
+    <div class="form-actions">
+      <button type="submit" [disabled]="saving()">
+        @if (saving()) {
+          {{ workoutToEdit() ? 'Actualizando...' : 'Guardando...' }}
+        } @else {
+          {{ workoutToEdit() ? 'Actualizar entrenamiento' : 'Guardar entrenamiento' }}
+        }
+      </button>
 
-    <button
-      type="button"
-      class="cancel-button"
-      (click)="cancel()"
-    >
-      Cancelar
-    </button>
+      <button
+        type="button"
+        class="cancel-button"
+        (click)="cancel()"
+      >
+        Cancelar
+      </button>
+    </div>
   </fieldset>
 </form>
 
