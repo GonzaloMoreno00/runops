@@ -1,55 +1,82 @@
 <header class="header">
-  <div class="logo">RunOps.</div>
-
-  <nav class="navigation">
-    <a routerLink="/">Inicio</a>
+  <a class="logo" routerLink="/" aria-label="RunOps, inicio">RunOps.</a>
+  <nav class="navigation" aria-label="Navegación principal">
+    <a routerLink="/" aria-current="page">Inicio</a>
     <a routerLink="/dashboard">Entrenamientos</a>
   </nav>
-
   <div class="auth-actions">
-    <a class="login-link" routerLink="/login">
-      Iniciar sesión
-    </a>
-
-    <a class="register-link" routerLink="/register">
-      Registrarse
-    </a>
+    <a class="login-link" routerLink="/login">Iniciar sesión</a>
+    <a class="register-link" routerLink="/register">Registrarse <span aria-hidden="true">↗</span></a>
   </div>
 </header>
 
 <main>
-  <section class="hero">
+  <section class="hero" aria-labelledby="hero-title">
     <div class="hero-content">
-      <span class="eyebrow">TU PROGRESO EMPIEZA AQUÍ</span>
+      <h1 id="hero-title">Cada kilómetro cuenta.</h1>
+      <p>Registra tus entrenamientos, sigue tu evolución y descubre hasta dónde puedes llegar.</p>
+      <a class="primary-button" routerLink="/register">Empieza gratis <span aria-hidden="true">↗</span></a>
+    </div>
 
-      <h1>Cada kilómetro cuenta.</h1>
-
-      <p>
-        Registra tus entrenamientos, sigue tu evolución
-        y descubre hasta dónde puedes llegar.
-      </p>
-
-      <a class="primary-button" routerLink="/register">
-        Empieza gratis →
-      </a>
+    <!-- Decorative bands: each sequence is repeated exactly for a seamless CSS loop. -->
+    <div class="gallery" aria-hidden="true">
+      <div class="gallery-band gallery-band--near">
+        <div class="gallery-sequence">
+          <img class="photo photo--portrait photo--runner-torso-motion" src="images/landing/runner-torso-motion.jpg" alt="" width="2752" height="1536" decoding="async">
+          <img class="photo photo--detail photo--running-shoes-wet" src="images/landing/running-shoes-wet.jpg" alt="" width="2752" height="1536" decoding="async">
+          <img class="photo photo--landscape photo--runner-recovery" src="images/landing/runner-recovery.jpg" alt="" width="2752" height="1536" decoding="async">
+        </div>
+        <div class="gallery-sequence">
+          <img class="photo photo--portrait photo--runner-torso-motion" src="images/landing/runner-torso-motion.jpg" alt="" width="2752" height="1536" decoding="async">
+          <img class="photo photo--detail photo--running-shoes-wet" src="images/landing/running-shoes-wet.jpg" alt="" width="2752" height="1536" decoding="async">
+          <img class="photo photo--landscape photo--runner-recovery" src="images/landing/runner-recovery.jpg" alt="" width="2752" height="1536" decoding="async">
+        </div>
+      </div>
+      <div class="gallery-band gallery-band--middle">
+        <div class="gallery-sequence">
+          <img class="photo photo--wide photo--runner-urban-wide" src="images/landing/runner-urban-wide.jpg" alt="" width="2752" height="1536" decoding="async">
+          <img class="photo photo--portrait photo--runner-tying-shoes" src="images/landing/runner-tying-shoes.jpg" alt="" width="2752" height="1536" decoding="async">
+          <img class="photo photo--landscape photo--runner-rear-road" src="images/landing/runner-rear-road.jpg" alt="" width="2752" height="1536" decoding="async">
+        </div>
+        <div class="gallery-sequence">
+          <img class="photo photo--wide photo--runner-urban-wide" src="images/landing/runner-urban-wide.jpg" alt="" width="2752" height="1536" decoding="async">
+          <img class="photo photo--portrait photo--runner-tying-shoes" src="images/landing/runner-tying-shoes.jpg" alt="" width="2752" height="1536" decoding="async">
+          <img class="photo photo--landscape photo--runner-rear-road" src="images/landing/runner-rear-road.jpg" alt="" width="2752" height="1536" decoding="async">
+        </div>
+      </div>
+      <div class="gallery-band gallery-band--far">
+        <div class="gallery-sequence">
+          <img class="photo photo--portrait photo--runner-side-motion" src="images/landing/runner-side-motion.jpg" alt="" width="2752" height="1536" decoding="async">
+          <img class="photo photo--landscape photo--runner-rear-road" src="images/landing/runner-rear-road.jpg" alt="" width="2752" height="1536" decoding="async">
+          <img class="photo photo--detail photo--runner-recovery" src="images/landing/runner-recovery.jpg" alt="" width="2752" height="1536" decoding="async">
+        </div>
+        <div class="gallery-sequence">
+          <img class="photo photo--portrait photo--runner-side-motion" src="images/landing/runner-side-motion.jpg" alt="" width="2752" height="1536" decoding="async">
+          <img class="photo photo--landscape photo--runner-rear-road" src="images/landing/runner-rear-road.jpg" alt="" width="2752" height="1536" decoding="async">
+          <img class="photo photo--detail photo--runner-recovery" src="images/landing/runner-recovery.jpg" alt="" width="2752" height="1536" decoding="async">
+        </div>
+      </div>
     </div>
   </section>
 
-  <section class="features">
-    <h2>Todo tu running, en un lugar.</h2>
-
+  <section class="features" aria-labelledby="features-title">
+    <div class="features-heading">
+      <span class="eyebrow">MENOS RUIDO. MÁS CAMINO.</span>
+      <h2 id="features-title">Todo tu running,<br>en un lugar.</h2>
+    </div>
     <div class="features-container">
       <article class="feature-card">
+        <span class="feature-number" aria-hidden="true">01 /</span>
         <h3>Registra</h3>
         <p>Guarda tus entrenamientos, distancias y tiempos.</p>
       </article>
-
       <article class="feature-card">
+        <span class="feature-number" aria-hidden="true">02 /</span>
         <h3>Analiza</h3>
         <p>Consulta tu historial y sigue tu evolución.</p>
       </article>
-
       <article class="feature-card">
+        <span class="feature-number" aria-hidden="true">03 /</span>
         <h3>Mejora</h3>
         <p>Prepárate para alcanzar tus próximos objetivos.</p>
       </article>
@@ -58,5 +85,6 @@
 </main>
 
 <footer class="footer">
-  <p>RunOps. Built for runners.</p>
+  <a class="logo" routerLink="/" aria-label="RunOps, inicio">RunOps.</a>
+  <p>Built for runners.</p>
 </footer>

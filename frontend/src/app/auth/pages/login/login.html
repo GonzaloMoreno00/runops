@@ -1,15 +1,15 @@
-<div class="login-page">
+<header class="auth-header">
+  <a class="logo" routerLink="/" aria-label="RunOps, inicio">RunOps.</a>
+  <a class="back-link" routerLink="/">← Volver al inicio</a>
+</header>
+
+<main class="login-page" aria-labelledby="auth-title">
+  <div class="auth-intro">
+    <h1 id="auth-title">Iniciar sesión</h1>
+    <p class="subtitle">Accede a tu cuenta y continúa registrando tus entrenamientos.</p>
+  </div>
 
   <div class="login-card">
-
-    <a class="logo" routerLink="/">RunOps.</a>
-
-    <h1>Iniciar sesión</h1>
-
-    <p class="subtitle">
-      Accede a tu cuenta y continúa registrando tus entrenamientos.
-    </p>
-
     <form [formGroup]="form" (ngSubmit)="submit()">
 
       <!-- Email -->
@@ -76,11 +76,5 @@
       ¿Todavía no tienes cuenta?
       <a routerLink="/register">Regístrate aquí</a>
     </p>
-
-    <a class="back-link" routerLink="/">
-      ← Volver al inicio
-    </a>
-
   </div>
-
-</div>
+</main>

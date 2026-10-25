@@ -69,22 +69,22 @@
     </div>
     } @else if (monthlySummary(); as summary) {
     <dl class="summary-grid">
-      <div class="summary-card">
+      <div class="summary-metric summary-distance">
         <dt>Distancia total</dt>
-        <dd>{{ summary.totalDistanceKm | number:'1.0-2' }} km</dd>
+        <dd>{{ summary.totalDistanceKm | number:'1.0-2' }} <span class="distance-unit">km</span></dd>
       </div>
 
-      <div class="summary-card">
+      <div class="summary-metric">
         <dt>Entrenamientos</dt>
         <dd>{{ summary.workoutCount }}</dd>
       </div>
 
-      <div class="summary-card">
+      <div class="summary-metric">
         <dt>Tiempo total</dt>
         <dd>{{ formatDuration(summary.totalDurationSeconds) }}</dd>
       </div>
 
-      <div class="summary-card">
+      <div class="summary-metric">
         <dt>Ritmo global</dt>
         <dd>{{ formatPace(summary.averagePaceSecondsPerKm) }}</dd>
       </div>
