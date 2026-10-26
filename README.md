@@ -1,36 +1,136 @@
-# runops
-Running analytics platform built with Spring Boot, Angular and PostgreSQL.
+# RunOps
 
-## Integración continua
+RunOps es una aplicación web full-stack para corredores amateurs que permite registrar entrenamientos y seguir su evolución con el tiempo.
 
-El workflow [CI](.github/workflows/ci.yml) se ejecuta en los PR dirigidos a
-`main`, al subir cambios a `main` y manualmente desde la pestaña Actions.
-Tiene dos jobs independientes:
+El proyecto está desarrollado como portfolio personal, con especial foco en backend, autenticación, testing, CI/CD y despliegue.
 
-- **Backend tests and build:** Java 21 y Maven Wrapper; ejecuta todos los tests
-  y genera el JAR con `verify`.
-- **Frontend tests and build:** Node.js 26.0.0 (definido en
-  `frontend/.nvmrc`) y npm 11.12.1; instala las versiones de `package-lock.json`
-  con `npm ci`, ejecuta los tests sin modo watch y compila para producción.
+**Demo:** [https://runops.onrender.com](https://runops.onrender.com)
 
-Los tests que cargan Spring usan el perfil `test`, con H2 en memoria.
-No necesitan Docker, credenciales ni PostgreSQL local. Esto comprueba las
-consultas JPA, pero no sustituye una prueba específica contra PostgreSQL.
-Mockito se configura como agente de la JVM de tests en Maven, por lo que no
-necesitas añadir argumentos especiales al ejecutar los comandos.
+> La aplicación está desplegada en el plan gratuito de Render, por lo que la primera carga puede tardar unos segundos si el servicio estaba en reposo.
 
-Para repetir las comprobaciones localmente:
+## Capturas
 
-```bash
-# Desde backend/
-./mvnw --batch-mode --no-transfer-progress verify
+### Landing
 
-# Desde frontend/ (con la versión de Node indicada en .nvmrc)
-npm ci
-npm test -- --watch=false
-npm run build -- --configuration production
+![Landing de RunOps](docs/screenshots/home.png)
+
+### Inicio de sesión
+
+![Inicio de sesión de RunOps](docs/screenshots/login.png)
+
+### Dashboard
+
+![Dashboard de RunOps](docs/screenshots/dashboard.png)
+
+### Historial de entrenamientos
+
+![Historial de entrenamientos de RunOps](docs/screenshots/workouts.png)
+
+## Funcionalidades
+
+- Registro, inicio y cierre de sesión
+- Autenticación basada en sesión con protección CSRF
+- Crear, editar y eliminar entrenamientos
+- Cada usuario solo puede acceder a sus propios entrenamientos
+- Cálculo automático del ritmo medio
+- Resumen mensual
+- Historial filtrado por mes
+- Gráfico de distancia semanal
+- Interfaz responsive
+- Tests automatizados de backend y frontend
+- Integración continua con GitHub Actions
+- Despliegue automático tras pasar los checks de CI
+
+## Tecnologías
+
+### Backend
+
+- Java 21
+- Spring Boot
+- Spring Security
+- Spring Data JPA
+- PostgreSQL
+
+### Frontend
+
+- Angular
+- TypeScript
+- Reactive Forms
+- Signals
+- RxJS
+
+### Infraestructura
+
+- Docker
+- GitHub Actions
+- Render
+- Neon PostgreSQL
+
+## Arquitectura
+
+```text
+Angular
+   ↓
+Spring Boot REST API
+   ↓
+PostgreSQL
 ```
 
-CI valida y compila; no despliega ni publica una release. Para impedir merges
-con errores, configura los dos jobs como comprobaciones obligatorias de
-`main` en las reglas del repositorio, después de su primera ejecución.
+En producción, Angular se compila y se sirve desde la propia aplicación Spring Boot dentro del mismo contenedor Docker.
+
+La autenticación utiliza sesiones HTTP. El backend obtiene siempre el usuario autenticado desde la sesión, por lo que el frontend no necesita enviar un `userId` al gestionar entrenamientos.
+
+## Ejecución local
+
+Levantar PostgreSQL:
+
+```bash
+docker compose up -d
+```
+
+Backend:
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm start
+```
+
+El servidor de desarrollo de Angular utiliza un proxy para enviar las peticiones `/api` al backend de Spring Boot.
+
+## Tests
+
+Backend:
+
+```bash
+cd backend
+./mvnw verify
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm test -- --watch=false
+```
+
+GitHub Actions ejecuta los tests del backend, los tests del frontend y el build de producción en los pull requests y cambios sobre `main`.
+
+## Despliegue
+
+La aplicación se empaqueta en una imagen Docker multi-stage.
+
+- **Aplicación:** Render
+- **Base de datos:** Neon PostgreSQL
+- **CI/CD:** GitHub Actions + Render Auto-Deploy
+
+Los cambios en `main` se despliegan automáticamente cuando los checks de CI terminan correctamente.
+
+## Estado
+RunOps está en desarrollo activo como proyecto de portfolio. La versión actual es funcional y está desplegada públicamente, y se seguirán añadiendo mejoras y nuevas funcionalidades.
